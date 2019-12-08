@@ -8,7 +8,13 @@ import subprocess
 from datetime import datetime as dt
 import time
 import traceback
-import ConfigParser
+
+# Support configparser in Python 2 and 3
+try:
+    from configparser import RawConfigParser  # Python 3
+except ImportError:
+    from ConfigParser import RawConfigParser  # Python 2
+
 import shutil
 import gc
 import ctypes
@@ -2217,7 +2223,7 @@ def writeCircuitscapeConfigFile(configFile, options):
     """Creates a configuration file for calling Circuitscape.
 
     """
-    config = ConfigParser.ConfigParser()
+    config = RawConfigParser()
 
     sections={}
     section='Version'
