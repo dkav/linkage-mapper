@@ -2324,5 +2324,3 @@ def get_mem():
     totMem = float(int(10 * float(stat.ullTotalPhys)/1073741824))/10
     availMem = float(int(10 * float(stat.ullAvailPhys)/1073741824))/10
     return totMem, availMem
-
-
