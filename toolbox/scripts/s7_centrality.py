@@ -3,8 +3,7 @@
 """Maps pinch points using Circuitscape given CWD calculations from
        s3_calcCwds.py.
 Reguired Software:
-ArcGIS 10 with Spatial Analyst extension
-Python 2.6
+ArcGIS Desktop 10.3+ or ArcGIS Pro with Spatial Analyst extension
 Numpy
 """
 
@@ -247,5 +246,3 @@ def load_graph(filename,graphType,datatype):
             raise RuntimeError('Error reading',type,
                                'file.  Please check file format')
     return graphObject
-
-
