@@ -39,17 +39,22 @@ def normalize_raster(in_raster, normalization_method=NM_MAX, invert=False):
     min_val = float(result.getOutput(0))
     result = arcpy.GetRasterProperties_management(in_raster, "MAXIMUM")
     max_val = float(result.getOutput(0))
+
     if max_val > 0:
         if normalization_method == NM_SCORE:
             if invert:
-                return (max_val - in_raster) / (max_val - min_val)
-            return (in_raster - min_val) / (max_val - min_val)
+                norm_raster = (max_val - in_raster) / (max_val - min_val)
+            else:
+                norm_raster = (in_raster - min_val) / (max_val - min_val)
         else:  # Max score normalization
             if invert:
-                return (max_val + min_val - in_raster) / max_val
-            return in_raster / max_val
+                norm_raster = (max_val + min_val - in_raster) / max_val
+            else:
+                norm_raster = in_raster / max_val
     else:
-        return in_raster * 0
+        norm_raster = in_raster * 0
+
+    return norm_raster
 
 
 def save_interm_rast(rast_list, base_name):
