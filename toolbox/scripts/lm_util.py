@@ -491,18 +491,8 @@ def get_allocs_from_shift(workspace, alloc, alloc_sh):
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         arcpy.env.workspace = workspace
         combine_ras = os.path.join(arcpy.env.workspace, "combine")
-        count = 0
-        statement = ('comb_ras = arcpy.sa.Combine([alloc, alloc_sh]); '
-                     'comb_ras.save(combine_ras)')
-        while True:
-            try:
-                exec(statement)
-            except Exception:
-                count, tryAgain = retry_arc_error(count, statement)
-                if not tryAgain:
-                    exec(statement)
-            else:
-                break
+        comb_ras = arcpy.sa.Combine([alloc, alloc_sh])
+        comb_ras.save(combine_ras)
         allocLookupTable = get_alloc_lookup_table(arcpy.env.workspace,
                                                   combine_ras)
         # Overwrite setting does not work for Combine, so delete raster
@@ -2001,21 +1991,6 @@ def rename_fields(FC):
 ############################################################################
 ##Error Checking and Handling Functions ####################################
 ############################################################################
-def print_arcgis_failures(statement, failures):
-    """ Reports ArcGIS call that's failing and decides whether to restart
-        iteration.
-
-    """
-    dashline(1)
-    gprint('***Problem encountered executing statement:')
-    gprint('"' + statement + '"')
-
-    print_warnings()
-
-    failures = failures + 1
-    return failures
-
-
 def print_drive_warning():
     gprint('\n********************************************************')
     drive, depth, realpath = get_dir_depth(cfg.PROJECTDIR)
@@ -2104,75 +2079,6 @@ def check_cores(FC,FN):
         exit_with_geoproc_error(_SCRIPT_NAME)
     except Exception:
         exit_with_python_error(_SCRIPT_NAME)
-
-
-def retry_arc_error(count, statement):
-    """Re-tries ArcGIS calls in case of server problems or other 'hiccups'."""
-    try:
-        if count < 5:
-            count = count + 1
-            sleepTime = 20*count
-
-            arcpy.AddWarning('-------------------------------------------------')
-            arcpy.AddWarning('Failed to execute ' + statement + ' on try '
-                              '#' + str(count) + '.\n')
-
-            print_warnings()
-
-            arcpy.AddWarning("Will try again. ")
-            arcpy.AddWarning('---------TRYING AGAIN IN ' +
-                                   str(int(sleepTime)) + ' SECONDS---------\n')
-            snooze(sleepTime)
-            return count, True
-
-        elif count < 7:
-            sleepTime = 300
-            count = count + 1
-            arcpy.AddWarning('Failed to execute ' + statement + ' on try #' +
-                        str(count) + '.\n Could be an ArcGIS hiccup.  Trying'
-                        ' again in 5 minutes.\n')
-            snooze(sleepTime)
-
-            return count, True
-
-        else:
-            sleepTime = 300
-            count = count + 1
-            arcpy.AddWarning('Failed to execute ' + statement + ' on try #' +
-                        str(count) + '.\n Could be an ArcGIS hiccup.  Trying'
-                        ' one last time in 5 minutes.\n')
-            snooze(sleepTime)
-
-            return count, False
-    except Exception:
-        exit_with_python_error(_SCRIPT_NAME)
-
-
-def print_warnings():
-    tb = sys.exc_info()[2]  # get the traceback object
-    # tbinfo contains the error's line number and the code
-    tbinfo = traceback.format_tb(tb)[0]
-    line = tbinfo.split(", ")[1]
-    filename = tbinfo.split(", ")[0]
-    filename = filename.rsplit("File ")[1]
-
-    if arcpy.GetMaxSeverity() > 1:
-        msg = ("The following ArcGIS error is being reported "
-                    "on line " + line + " of " + filename + ":")
-        arcpy.AddWarning(msg)
-        write_log(msg)
-        arcpy.AddWarning(arcpy.GetMessages(2))
-        write_log(arcpy.GetMessages(2))
-        print_drive_warning()
-
-    else:
-        msg = ("The following error is being reported at "
-                        + line + " of " + filename + ":")
-        err = traceback.format_exc().splitlines()[-1]
-        arcpy.AddWarning(msg)
-        arcpy.AddWarning(err + '\n')
-        write_log(msg)
-        write_log(err)
 
 
 def snooze(sleepTime):

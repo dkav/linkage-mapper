@@ -179,23 +179,13 @@ def calc_lccs(normalize):
             lcDist = (float(linkTable[link,cfg.LTB_CWDIST]) - offset)
 
             if normalize:
-                statement = ('outras = arcpy.sa.Raster(cwdRaster1) '
-                             '+ arcpy.sa.Raster(cwdRaster2) - lcDist; '
-                             'outras.save(lccNormRaster)')
+                outras = (arcpy.sa.Raster(cwdRaster1) +
+                          arcpy.sa.Raster(cwdRaster2) - lcDist)
+                outras.save(lccNormRaster)
             else:
-                statement = ('outras = arcpy.sa.Raster(cwdRaster1) '
-                             '+ arcpy.sa.Raster(cwdRaster2); '
-                             'outras.save(lccNormRaster)')
-
-            count = 0
-            while True:
-                try:
-                    exec(statement)
-                except Exception:
-                    count,tryAgain = lu.retry_arc_error(count,statement)
-                    if not tryAgain:
-                        exec(statement)
-                else: break
+                outras = (
+                    arcpy.sa.Raster(cwdRaster1) + arcpy.sa.Raster(cwdRaster2))
+                outras.save(lccNormRaster)
 
             if normalize:
                 try:
@@ -229,31 +219,16 @@ def calc_lccs(normalize):
                 #If this is the first grid then copy rather than mosaic
                 arcpy.CopyRaster_management(lccNormRaster, mosaicRaster)
             else:
-                statement = (
-                    'arcpy.MosaicToNewRaster_management('
-                    'input_rasters=";".join([lccNormRaster, '
-                    'lastMosaicRaster]), output_location=mosaicDir, '
-                    'raster_dataset_name_with_extension=mosFN, '
-                    'pixel_type="32_BIT_FLOAT", cellsize=arcpy.env.cellSize, '
-                    'number_of_bands="1", mosaic_method="MINIMUM")')
+                lu.write_log('Executing mosaic for link #'+str(linkId))
+                arcpy.MosaicToNewRaster_management(
+                    input_rasters=";".join([lccNormRaster,
+                                            lastMosaicRaster]),
+                    output_location=mosaicDir,
+                    raster_dataset_name_with_extension=mosFN,
+                    pixel_type="32_BIT_FLOAT", cellsize=arcpy.env.cellSize,
+                    number_of_bands="1", mosaic_method="MINIMUM")
+                lu.write_log('Done with mosaic.')
 
-                count = 0
-                while True:
-                    try:
-                        lu.write_log('Executing mosaic for link #'+str(linkId))
-                        exec(statement)
-                        lu.write_log('Done with mosaic.')
-                    except Exception:
-                        count,tryAgain = lu.retry_arc_error(count,statement)
-                        lu.delete_data(mosaicRaster)
-                        lu.delete_dir(mosaicDir)
-                        # Try a new directory
-                        mosaicDir = path.join(cfg.LCCBASEDIR,'mos'+str(x+1)+ '_' + str(count))
-                        lu.create_dir(mosaicDir)
-                        mosaicRaster = path.join(mosaicDir,mosFN)
-                        if not tryAgain:
-                            exec(statement)
-                    else: break
             endTime = perf_counter()
             processTime = round((endTime - start_time), 2)
 
@@ -321,40 +296,21 @@ def calc_lccs(normalize):
 
         # ---------------------------------------------------------------------
         # convert mosaic raster to integer
-        intRaster = path.join(outputGDB,PREFIX + mosaicBaseName)
-        statement = ('outras = arcpy.sa.Int(arcpy.sa.Raster(mosaicRaster) '
-                     '- offset + 0.5); '
-                     'outras.save(intRaster)')
-        count = 0
-        while True:
-            try:
-                exec(statement)
-            except Exception:
-                count,tryAgain = lu.retry_arc_error(count,statement)
-                if not tryAgain: exec(statement)
-            else: break
+        intRaster = path.join(outputGDB, PREFIX + mosaicBaseName)
+        outras = arcpy.sa.Int(arcpy.sa.Raster(mosaicRaster) - offset + 0.5)
+        outras.save(intRaster)
+
         # ---------------------------------------------------------------------
-
-
         if writeTruncRaster:
             # -----------------------------------------------------------------
             # Set anything beyond cfg.CWDTHRESH to NODATA.
             truncRaster = (outputGDB + '\\' + PREFIX + mosaicBaseName +
                            '_truncated_at_' + lu.cwd_cutoff_str(cfg.CWDTHRESH))
 
-            statement = ('outRas = arcpy.sa.Raster(intRaster)'
-                         '* (arcpy.sa.Con(arcpy.sa.Raster(intRaster) '
-                         '<= cfg.CWDTHRESH, 1)); '
-                         'outRas.save(truncRaster)')
+            outRas = (arcpy.sa.Raster(intRaster) *
+                (arcpy.sa.Con(arcpy.sa.Raster(intRaster) <= cfg.CWDTHRESH, 1)))
+            outRas.save(truncRaster)
 
-            count = 0
-            while True:
-                try:
-                    exec(statement)
-                except Exception:
-                    count,tryAgain = lu.retry_arc_error(count,statement)
-                    if not tryAgain: exec(statement)
-                else: break
         # ---------------------------------------------------------------------
         # Check for unreasonably low minimum NLCC values
         try:

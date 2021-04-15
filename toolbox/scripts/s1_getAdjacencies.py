@@ -152,20 +152,10 @@ def cwadjacency():
         lu.delete_data(alloc_ras)
         lu.delete_data(outDistanceRaster)
 
-        statement = ('costAllocOut = arcpy.sa.CostAllocation(cfg.CORERAS, '
-                     'bResistance, cfg.TMAXCWDIST, cfg.CORERAS,"VALUE", '
-                     'outDistanceRaster);'
-                     'costAllocOut.save(alloc_ras)')
-        count = 0
-        while True:
-            try:
-                exec(statement)
-            except Exception:
-                count, tryAgain = lu.retry_arc_error(count, statement)
-                if not tryAgain:
-                    exec(statement)
-            else:
-                break
+        costAllocOut = arcpy.sa.CostAllocation(
+                cfg.CORERAS, bResistance, cfg.TMAXCWDIST,
+                cfg.CORERAS, "VALUE", outDistanceRaster)
+        costAllocOut.save(alloc_ras)
 
         gprint('\nBuilding output statistics and pyramids for CWD raster.')
         lu.build_stats(outDistanceRaster)
@@ -215,20 +205,10 @@ def euadjacency():
         lu.delete_data(alloc_ras)
         lu.delete_data(outDistanceRaster)
 
-        count = 0
-        statement = ('alloc_raster = arcpy.sa.EucAllocation('
-                     'cfg.CORERAS, "", "", '
-                     'cellSizeEuclidean, "", outDistanceRaster, ""); '
-                     'alloc_raster.save(alloc_ras)')
-        while True:
-            try:
-                exec(statement)
-            except Exception:
-                count, tryAgain = lu.retry_arc_error(count, statement)
-                if not tryAgain:
-                    exec(statement)
-            else:
-                break
+        alloc_raster = arcpy.sa.EucAllocation(
+                cfg.CORERAS, "", "", cellSizeEuclidean, "",
+                outDistanceRaster, "")
+        alloc_raster.save(alloc_ras)
 
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         gprint('\nEuclidean distance allocation done.')
