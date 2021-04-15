@@ -24,8 +24,6 @@ import shutil
 import gc
 import ctypes
 import locale
-from lm_retry_decorator import Retry
-
 
 import numpy as npy
 import arcpy
@@ -1927,7 +1925,6 @@ def move_map(oldMap, newMap):
     return
 
 
-@Retry(10)
 def call_circuitscape(cspath, outConfigFile):
     """Call Circuitscape."""
     mem_flag = False
@@ -2251,7 +2248,6 @@ def dashline(lspace=0):
 ############################################################################
 # Circuitscape Functions ##################################################
 ############################################################################
-@Retry(5)
 def set_cs_options():
     """Set default options for calling Circuitscape."""
     options = {}

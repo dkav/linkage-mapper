@@ -18,7 +18,6 @@ except ImportError:
 import numpy as npy
 import arcpy
 
-from lm_retry_decorator import Retry
 from lm_config import tool_env as cfg
 import lm_util as lu
 
@@ -29,7 +28,6 @@ gprint = lu.gprint
 tif = ".tif"
 
 
-@Retry(2)
 def STEP8_calc_pinchpoints():
     """ Maps pinch points in Linkage Mapper corridors using Circuitscape
         given CWD calculations from s3_calcCwds.py.
@@ -304,17 +302,11 @@ def STEP8_calc_pinchpoints():
                 arcpy.env.extent = "MAXOF"
                 if linkLoop == 1:
                     lu.delete_data(mosaicRaster)
-                    @Retry(10)
-                    def copyRas2():
-                        arcpy.CopyRaster_management(currentRaster,
-                                                    mosaicRaster)
-                    copyRas2()
+                    arcpy.CopyRaster_management(currentRaster,
+                                                mosaicRaster)
                 else:
-                    @Retry(10)
-                    def mosaicRas():
-                        arcpy.Mosaic_management(currentRaster,
-                                         mosaicRaster, "MAXIMUM", "MATCH")
-                    mosaicRas()
+                    arcpy.Mosaic_management(
+                        currentRaster, mosaicRaster, "MAXIMUM", "MATCH")
 
                 resistancesFN = ('Circuitscape_link' + linkId
                             + '_resistances_3columns.out')
@@ -353,10 +345,7 @@ def STEP8_calc_pinchpoints():
                                      "_current_adjacentPairs_" + cutoffText)
             lu.delete_data(outputRaster)
 
-            @Retry(10)
-            def copyRas():
-                arcpy.CopyRaster_management(mosaicRaster, outputRaster)
-            copyRas()
+            arcpy.CopyRaster_management(mosaicRaster, outputRaster)
 
             gprint('Building output statistics and pyramids '
                                   'for corridor pinch point raster\n')
@@ -536,7 +525,6 @@ def STEP8_calc_pinchpoints():
         lu.exit_with_python_error(_SCRIPT_NAME)
 
 
-@Retry(10)
 def export_ras_to_npy(raster,npyFile):
     descData=arcpy.Describe(raster)
     cellSize=descData.meanCellHeight
@@ -556,7 +544,6 @@ def export_ras_to_npy(raster,npyFile):
 
     return numElements, numNodes
 
-@Retry(10)
 def import_npy_to_ras(npyFile,baseRaster,outRasterPath):
     npyArray = npy.load(npyFile, mmap_mode=None)
     npyArray=npyArray.astype('float32')
@@ -572,7 +559,6 @@ def import_npy_to_ras(npyFile,baseRaster,outRasterPath):
     return
 
 
-@Retry(10)
 def write_header(raster,numpyArray,numpyFile):
     ncols=numpyArray.shape[1]
     nrows=numpyArray.shape[0]
