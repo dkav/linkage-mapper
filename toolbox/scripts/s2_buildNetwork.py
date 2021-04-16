@@ -283,70 +283,75 @@ def get_adj_list(adjFile):
 
 
 def generate_distance_file():
-    """Use ArcGIS to create Conefor distance file
+    """Use ArcGIS to create Conefor distance file.
 
     For ArcGIS Desktop users an Advanced license is required.
 
     """
     try:
         arcpy.env.cellSize = arcpy.Raster(cfg.RESRAST).meanCellHeight
-        S2COREFC = cfg.COREFC
-        if cfg.SIMPLIFY_CORES:
-            try:
-                gprint('Simplifying polygons for core pair distance calculations')
-                COREFC_SIMP = path.join(cfg.SCRATCHDIR, "CoreFC_Simp.shp")
-                tolerance = float(arcpy.env.cellSize) / 3
-                arcpy.cartography.SimplifyPolygon(cfg.COREFC, COREFC_SIMP,
-                    "POINT_REMOVE", tolerance, "#", "NO_CHECK")
-                S2COREFC = COREFC_SIMP
-            except Exception:
-                pass # In case point geometry is entered for core area FC
-
         arcpy.env.workspace = cfg.SCRATCHDIR
-        FS2COREFC = "fscores"
-        FS2COREFC2 = "fscores2"
-        arcpy.MakeFeatureLayer_management(S2COREFC, FS2COREFC)
-        arcpy.MakeFeatureLayer_management(S2COREFC, FS2COREFC2)
+
+        fs2corefc = "fscores"
+        fs2corefc2 = "fscores2"
+
+        if (cfg.SIMPLIFY_CORES and
+                arcpy.Describe(cfg.COREFC).shapeType == "Polygon"):
+            gprint('Simplifying polygons for core pair distance calculations')
+            s2corefc = path.join(cfg.SCRATCHDIR, "CoreFC_Simp.shp")
+            tolerance = float(arcpy.env.cellSize) / 3
+            arcpy.cartography.SimplifyPolygon(
+                in_features=cfg.COREFC, out_feature_class=s2corefc,
+                algorithm="POINT_REMOVE", tolerance=tolerance,
+                collapsed_point_option="NO_KEEP")
+        else:
+            s2corefc = cfg.COREFC
+
+        arcpy.MakeFeatureLayer_management(s2corefc, fs2corefc)
+        arcpy.MakeFeatureLayer_management(s2corefc, fs2corefc2)
 
         output = []
         csvseparator = "\t"
 
-
-        adjList = get_full_adj_list()
+        adj_list = get_full_adj_list()
         gprint('\nFinding distances between cores using Generate Near Table.')
         near_tbl = path.join(cfg.SCRATCHDIR, "neartbl.dbf")
-        gprint('There are ' + str(len(adjList)) + ' adjacent core pairs to '
+        gprint('There are ' + str(len(adj_list)) + ' adjacent core pairs to '
                'process.')
-        pctDone = 0
+        pct_done = 0
         start_time = perf_counter()
-        for x in range(0, len(adjList)):
+        for x in range(0, len(adj_list)):
 
-            pctDone = lu.report_pct_done(x, len(adjList), pctDone)
-            sourceCore = adjList[x, 0]
-            targetCore = adjList[x, 1]
-            expression = cfg.COREFN + " = " + str(sourceCore)
+            pct_done = lu.report_pct_done(x, len(adj_list), pct_done)
+            source_core = adj_list[x, 0]
+            target_core = adj_list[x, 1]
+            expression = cfg.COREFN + " = " + str(source_core)
             arcpy.SelectLayerByAttribute_management(
-                FS2COREFC, "NEW_SELECTION", expression)
-            expression = cfg.COREFN + " = " + str(targetCore)
+                fs2corefc, "NEW_SELECTION", expression)
+            expression = cfg.COREFN + " = " + str(target_core)
             arcpy.SelectLayerByAttribute_management(
-                FS2COREFC2, "NEW_SELECTION", expression)
+                fs2corefc2, "NEW_SELECTION", expression)
 
-            arcpy.GenerateNearTable_analysis(FS2COREFC, FS2COREFC2, near_tbl,
-                "#", "NO_LOCATION", "NO_ANGLE", "ALL", "0")
+            arcpy.GenerateNearTable_analysis(
+                fs2corefc, fs2corefc2, near_tbl, "#",
+                "NO_LOCATION", "NO_ANGLE", "ALL", "0")
 
             rows = arcpy.SearchCursor(near_tbl)
             row = next(rows)
-            minDist = 1e20
+            min_dist = 1e20
             if row:  # May be running on selected core areas in step 2
                 while row:
                     dist = row.getValue("NEAR_DIST")
-                    if dist <= 0:  # In case simplified polygons abut one another
+
+                    # In case simplified polygons abut one another
+                    if dist <= 0:
                         dist = float(arcpy.env.cellSize)
-                    if dist < minDist:
-                        minDist = dist
+
+                    if dist < min_dist:
+                        min_dist = dist
                         outputrow = []
-                        outputrow.append(str(sourceCore))
-                        outputrow.append(str(targetCore))
+                        outputrow.append(str(source_core))
+                        outputrow.append(str(target_core))
                         outputrow.append(str(dist))
                     del row
                     row = next(rows)
@@ -355,14 +360,14 @@ def generate_distance_file():
 
         start_time = lu.elapsed_time(start_time)
 
-        # In case coreFC is grouped in TOC, get coreFN for non-Arc statement
-        group,coreFN = path.split(cfg.COREFC)
+        #  In case coreFC is grouped in TOC, get coreFN for non-Arc statement
+        core_fn = path.split(cfg.COREFC)[1]
 
-        dist_fname = path.join(cfg.PROJECTDIR, (coreFN + "_dists.txt"))
-        dist_file = open(dist_fname, 'w')
-        dist_file.write('\n'.join(output))
-        dist_file.close()
-        gprint('Distance file ' + dist_fname + ' generated.\n')
+        dist_fname = path.join(cfg.PROJECTDIR, (core_fn + "_dists.txt"))
+        with open(dist_fname, "w") as dist_file:
+            dist_file.write('\n'.join(output))
+
+        gprint('Distance file {} generated.\n'.format(dist_fname))
 
         return dist_fname
 
