@@ -259,23 +259,17 @@ def get_adj_using_shift_method(alloc):
 
     gprint('Calculating adjacencies crossing allocation boundaries...')
     start_time = time.clock()
+
     arcpy.Shift_management(alloc, "alloc_r", posShift, "0")
-
-    alloc_r = "alloc_r"
-    adjTable_r = get_allocs_from_shift(arcpy.env.workspace, alloc, alloc_r)
+    adjTable_r = get_allocs_from_shift(alloc, "alloc_r")
     arcpy.Shift_management(alloc, "alloc_ul", negShift, posShift)
-
-    alloc_ul = "alloc_ul"
-    adjTable_ul = get_allocs_from_shift(arcpy.env.workspace, alloc, alloc_ul)
+    adjTable_ul = get_allocs_from_shift(alloc, "alloc_ul")
     arcpy.Shift_management(alloc, "alloc_ur", posShift, posShift)
-
-    alloc_ur = "alloc_ur"
-    adjTable_ur = get_allocs_from_shift(arcpy.env.workspace, alloc, alloc_ur)
+    adjTable_ur = get_allocs_from_shift(alloc, "alloc_ur")
     arcpy.Shift_management(alloc, "alloc_u", "0", posShift)
+    adjTable_u = get_allocs_from_shift(alloc, "alloc_u")
 
-    alloc_u = "alloc_u"
-    adjTable_u = get_allocs_from_shift(arcpy.env.workspace, alloc, alloc_u)
-    start_time = lu.elapsed_time(start_time)
+    lu.elapsed_time(start_time)
 
     adjTable = combine_adjacency_tables(adjTable_r, adjTable_u, adjTable_ur,
                                         adjTable_ul)
@@ -283,18 +277,12 @@ def get_adj_using_shift_method(alloc):
     return adjTable
 
 
-def get_allocs_from_shift(workspace, alloc, alloc_sh):
+def get_allocs_from_shift(alloc, alloc_sh):
     """Returns a table of adjacent allocation zones using grid shift method"""
     try:
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
-        arcpy.env.workspace = workspace
-        combine_ras = path.join(arcpy.env.workspace, "combine")
         comb_ras = arcpy.sa.Combine([alloc, alloc_sh])
-        comb_ras.save(combine_ras)
-        allocLookupTable = get_alloc_lookup_table(arcpy.env.workspace,
-                                                  combine_ras)
-        # Overwrite setting does not work for Combine, so delete raster
-        lu.delete_data(combine_ras)
+        allocLookupTable = get_alloc_lookup_table(comb_ras)
         return allocLookupTable[:, 1:3]
 
     except arcpy.ExecuteError:
@@ -303,7 +291,7 @@ def get_allocs_from_shift(workspace, alloc, alloc_sh):
         lu.exit_with_python_error(_SCRIPT_NAME)
 
 
-def get_alloc_lookup_table(workspace, combine_ras):
+def get_alloc_lookup_table(combine_ras):
     """Returns a table of adjacent allocation zones.
 
     Requires a raster with allocation zone attributes.
