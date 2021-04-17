@@ -1458,12 +1458,12 @@ def move_old_results():
         exit_with_python_error(_SCRIPT_NAME)
 
 
-def move_results_folder(oldFolder, newFolder):
-    try:
-        if (os.path.exists(oldFolder) and not os.path.exists(newFolder)):
-            os.rename(oldFolder, newFolder)
-    except Exception:
-        exit_with_python_error(_SCRIPT_NAME)
+def move_results_folder(old_folder, new_folder):
+    if os.path.exists(old_folder) and not os.path.exists(new_folder):
+        try:
+            os.rename(old_folder, new_folder)
+        except OSError:
+            exit_with_python_error(_SCRIPT_NAME)
 
 
 def delete_file(filename):
