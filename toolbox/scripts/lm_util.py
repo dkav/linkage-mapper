@@ -1468,24 +1468,32 @@ def move_results_folder(oldFolder, newFolder):
 
 def delete_file(filename):
     """Delete file from disk."""
-    try:
-        os.remove(filename)
-    except OSError:
-        pass
+    if os.path.exists(filename):
+        try:
+            os.remove(filename)
+        except OSError as err:
+            write_log("OS was unable to delete {}".format(filename))
+            write_log(err)
 
 
 def delete_dir(dir_path):
     """Delete directory from disk ignoring errors."""
-    if os.path.isdir(dir_path):
-        shutil.rmtree(dir_path, ignore_errors=True)
+    if os.path.exists(dir_path) and os.path.isdir(dir_path):
+        try:
+            shutil.rmtree(dir_path)
+        except OSError as err:
+            write_log("OS was unable to delete {} directory".format(dir_path))
+            write_log(err)
 
 
-def delete_data(item):
+def delete_data(*in_data):
     """Delete data from disk using ArcPy."""
-    try:
-        arcpy.Delete_management(item)
-    except arcpy.ExecuteError:
-        pass
+    for item in in_data:
+        try:
+            arcpy.Delete_management(item)
+        except arcpy.ExecuteError:
+            write_log("Arcpy was unable to delete {}".format(item))
+            write_log(arcpy.GetMessages(2))
 
 
 def clean_out_workspace(ws):
@@ -1493,9 +1501,8 @@ def clean_out_workspace(ws):
     if arcpy.Exists(ws):
         cur_ws = arcpy.env.workspace
         arcpy.env.workspace = ws
-        datasets = arcpy.ListDatasets()
-        for data in datasets:
-                delete_data(data)
+        delete_data(*arcpy.ListRasters())
+        delete_data(*arcpy.ListFeatureClasses())
         arcpy.env.workspace = cur_ws
 
 
