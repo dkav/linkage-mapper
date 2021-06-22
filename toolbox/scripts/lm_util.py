@@ -1116,23 +1116,6 @@ def gprint(string):
         pass
 
 
-def process_info():
-    opr_sys = platform.platform()
-    sys_processor = platform.processor()
-    arc_version = arcpy.GetInstallInfo("desktop")['Version']
-    corelayer = arcpy.Describe(cfg.COREFC).SpatialReference.name
-    numcores = get_core_list(cfg.COREFC, cfg.COREFN)
-    reslayer = arcpy.Describe(cfg.RESRAST_IN)
-    return 'System and data information' + '\n'+\
-           'Operating system :  ' + opr_sys + '\n'+\
-           'Precessor type :  ' + sys_processor + '\n'+\
-           'Arc version :  ' + str(arc_version) + '\n' +\
-           'Coordinate system of core layer : ' + corelayer + '\n' +\
-            'Number of cores :  ' + str(numcores.shape[0]) + '\n'+\
-           'Coordinate system of resistance layer  : ' + reslayer.SpatialReference.name + '\n'+\
-           'Cell size & units :  ' + str(reslayer.meanCellHeight) + ' & ' + reslayer.SpatialReference.linearUnitName +'\n'+\
-           'Resistance layer size (width, height) :  ' + str(reslayer.width) +', '+ str(reslayer.height) + '\n'
-
 def create_log_file(messageDir, toolName, inParameters):
     ft = tuple(time.localtime())
     timeNow = time.ctime()
@@ -2348,3 +2331,61 @@ def get_mem():
     totMem = float(int(10 * float(stat.ullTotalPhys)/1073741824))/10
     availMem = float(int(10 * float(stat.ullAvailPhys)/1073741824))/10
     return totMem, availMem
+
+
+def process_info():
+    # pc information
+    try:
+        inf = 'System and data information\n'
+        inf += 'Operating system: ' + platform.platform() + '\n'
+        inf += 'Precessor type: ' +  platform.processor() + '\n'
+        inf += 'Arc version: ' + str(arcpy.GetInstallInfo("desktop")['Version']) + '\n'
+        totMem, avilMem = get_mem()
+        inf += 'Total & Available RAM: ' + str(totMem) + ' & ' + str(avilMem) + '\n'
+    except:
+        inf += 'Error occurred while extracting system information\n'
+    # metadata
+    if cfg.TOOL == 'Linkage Mapper' or cfg.TOOL == 'Linkage Priority' or\
+            cfg.TOOL =='Circuitscape' or cfg.TOOL == 'Barrier mapper':
+        try:
+            reslayer = arcpy.Describe(cfg.RESRAST_IN)
+            if cfg.TOOL != 'Barrier mapper':
+                corelayer = arcpy.Describe(cfg.COREFC).SpatialReference.name
+                numcores = get_core_list(cfg.COREFC, cfg.COREFN)
+        except:
+            inf += 'Error occurred while reading input layers\n'
+        else:
+            if cfg.TOOL != 'Barrier mapper':
+                inf += 'Coordinate system of core layer: ' + corelayer + '\n'
+                inf += 'Number of cores: ' + str(numcores.shape[0]) + '\n'
+            inf += 'Coordinate system of resistance layer: ' +\
+                   reslayer.SpatialReference.name + '\n'
+            inf += 'Cell size & units: ' + str(reslayer.meanCellHeight) + ' & '\
+                   + reslayer.SpatialReference.linearUnitName +'\n'
+            inf += 'Resistance layer size in pixels (width, height) :  ' + str(reslayer.width)\
+                   +', '+ str(reslayer.height) + '\n'
+
+    elif cfg.TOOL == 'Climate Linkage Mapper':
+        try:
+            corelayer = arcpy.Describe(cfg.core_fc).SpatialReference.name
+            numcores = get_core_list(cfg.core_fc, cfg.core_fld)
+            climlayer = arcpy.Describe(cfg.climate_rast)
+            reslayer = arcpy.Describe(cfg.resist_rast)
+        except:
+            inf += 'Error occurred while reading input layers\n'
+        else:
+            inf += 'Coordinate system of core layer: ' + corelayer + '\n'
+            inf += 'Number of cores: ' + str(numcores.shape[0]) + '\n'
+            inf += 'Coordinate system of climate layer: ' + \
+                   climlayer.SpatialReference.name + '\n'
+            inf += "Climate layer's cell size & units: " + str(climlayer.meanCellHeight) + ' & ' \
+                   + climlayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Climate layer size in pixels (width, height): ' + str(climlayer.width) \
+                   + ', ' + str(climlayer.height) + '\n'
+            inf += 'Coordinate system of resistance layer: ' + \
+                   reslayer.SpatialReference.name + '\n'
+            inf += "Resistance layer's cell size & units: " + str(reslayer.meanCellHeight) + ' & ' \
+                   + reslayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Resistance layer size in pixels (width, height): ' + str(reslayer.width) \
+                   + ', ' + str(reslayer.height) + '\n'
+    return inf
