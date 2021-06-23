@@ -20,6 +20,7 @@ import gc
 import ctypes
 import locale
 from lm_retry_decorator import Retry
+import platform
 
 
 import numpy as npy
@@ -1133,9 +1134,11 @@ def create_log_file(message_dir, tool_name, in_parameters):
         lfile.write('Linkage Mapper log file: %s \n\n' % (tool_name))
         lfile.write('Start time:\t%s \n' % (
             start_time.strftime("%H%M %Y-%m-%d")))
-        lfile.write('Parameters:\t%s \n\n' %
-                    (', '.join([str(item) for item in in_parameters[1:]])))
-
+        lfile.write('Parameters:')
+        for inpt, param in zip(cfg.inputs, in_parameters[1:]):
+            lfile.write("{} : {}\n".format(inpt, param))
+        lfile.write("\n")
+        lfile.write(process_info())
     dashline()
     gprint('A record of run settings and messages can be found in your '
            'log directory:')
@@ -2293,3 +2296,61 @@ def get_mem():
     totMem = float(int(10 * float(stat.ullTotalPhys)/1073741824))/10
     availMem = float(int(10 * float(stat.ullAvailPhys)/1073741824))/10
     return totMem, availMem
+
+
+def process_info():
+    # pc information
+    try:
+        inf = 'System and data information\n'
+        inf += 'Operating system: ' + platform.platform() + '\n'
+        inf += 'Precessor type: ' +  platform.processor() + '\n'
+        inf += 'Arc version: ' + str(arcpy.GetInstallInfo("desktop")['Version']) + '\n'
+        totMem, avilMem = get_mem()
+        inf += 'Total & Available RAM: ' + str(totMem) + ' & ' + str(avilMem) + '\n'
+    except:
+        inf += 'Error occurred while extracting system information\n'
+    # metadata
+    if cfg.TOOL == 'Linkage Mapper' or cfg.TOOL == 'Linkage Priority' or\
+            cfg.TOOL =='Circuitscape' or cfg.TOOL == 'Barrier mapper':
+        try:
+            reslayer = arcpy.Describe(cfg.RESRAST_IN)
+            if cfg.TOOL != 'Barrier mapper':
+                corelayer = arcpy.Describe(cfg.COREFC).SpatialReference.name
+                numcores = get_core_list(cfg.COREFC, cfg.COREFN)
+        except:
+            inf += 'Error occurred while reading input layers\n'
+        else:
+            if cfg.TOOL != 'Barrier mapper':
+                inf += 'Coordinate system of core layer: ' + corelayer + '\n'
+                inf += 'Number of cores: ' + str(numcores.shape[0]) + '\n'
+            inf += 'Coordinate system of resistance layer: ' +\
+                   reslayer.SpatialReference.name + '\n'
+            inf += 'Cell size & units: ' + str(reslayer.meanCellHeight) + ' & '\
+                   + reslayer.SpatialReference.linearUnitName +'\n'
+            inf += 'Resistance layer size in pixels (width, height) :  ' + str(reslayer.width)\
+                   +', '+ str(reslayer.height) + '\n'
+
+    elif cfg.TOOL == 'Climate Linkage Mapper':
+        try:
+            corelayer = arcpy.Describe(cfg.core_fc).SpatialReference.name
+            numcores = get_core_list(cfg.core_fc, cfg.core_fld)
+            climlayer = arcpy.Describe(cfg.climate_rast)
+            reslayer = arcpy.Describe(cfg.resist_rast)
+        except:
+            inf += 'Error occurred while reading input layers\n'
+        else:
+            inf += 'Coordinate system of core layer: ' + corelayer + '\n'
+            inf += 'Number of cores: ' + str(numcores.shape[0]) + '\n'
+            inf += 'Coordinate system of climate layer: ' + \
+                   climlayer.SpatialReference.name + '\n'
+            inf += "Climate layer's cell size & units: " + str(climlayer.meanCellHeight) + ' & ' \
+                   + climlayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Climate layer size in pixels (width, height): ' + str(climlayer.width) \
+                   + ', ' + str(climlayer.height) + '\n'
+            inf += 'Coordinate system of resistance layer: ' + \
+                   reslayer.SpatialReference.name + '\n'
+            inf += "Resistance layer's cell size & units: " + str(reslayer.meanCellHeight) + ' & ' \
+                   + reslayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Resistance layer size in pixels (width, height): ' + str(reslayer.width) \
+                   + ', ' + str(reslayer.height) + '\n'
+    return inf
