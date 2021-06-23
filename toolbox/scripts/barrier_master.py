@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 """Master script for barrier analysis in linkage mapper.
 
 Reguired Software:
@@ -32,7 +34,8 @@ def bar_master(argv=None):
         lu.create_dir(cfg.LOGDIR)
         lu.create_dir(cfg.MESSAGEDIR)
 
-        cfg.logFilePath = lu.create_log_file(cfg.MESSAGEDIR, cfg.TOOL, argv)
+        cfg.logFilePath = lu.create_log_file(cfg.MESSAGEDIR, cfg.TOOL,
+                                             cfg.PARAMS)
 
         lu.print_drive_warning()
 

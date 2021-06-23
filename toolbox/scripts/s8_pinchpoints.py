@@ -3,7 +3,8 @@
 """Maps pinch points using Circuitscape given CWD calculations from
        s3_calcCwds.py.
 Reguired Software:
-ArcGIS Desktop 10.3+ or ArcGIS Pro with Spatial Analyst extension
+ArcGIS 10 with Spatial Analyst extension
+Python 2.6
 Numpy
 """
 
@@ -51,7 +52,7 @@ def STEP8_calc_pinchpoints():
         # set the analysis extent and cell size to that of the resistance
         # surface
         arcpy.env.extent = cfg.RESRAST
-        arcpy.env.cellSize = arcpy.Describe(cfg.RESRAST).MeanCellHeight
+        arcpy.env.cellSize = cfg.RESRAST
         arcpy.snapRaster = cfg.RESRAST
 
         resRaster = cfg.RESRAST
@@ -232,7 +233,7 @@ def STEP8_calc_pinchpoints():
                 arcpy.env.extent = "MINOF"
 
                 # Set circuitscape options and call
-                options = lu.set_cs_options()
+                options = lu.setCircuitscapeOptions()
                 if cfg.WRITE_VOLT_MAPS == True:
                     options['write_volt_maps']=True
                 options['habitat_file'] = resNpyFile
@@ -246,7 +247,7 @@ def STEP8_calc_pinchpoints():
                 configFN = 'pinchpoint_config' + linkId + '.ini'
 
                 outConfigFile = path.join(CONFIGDIR, configFN)
-                lu.write_cs_cfg_file(outConfigFile, options)
+                lu.writeCircuitscapeConfigFile(outConfigFile, options)
                 gprint('Processing link ID #' + str(linkId) + '. Resistance map'
                         ' has ' + str(int(numResistanceNodes)) + ' nodes.')
 
@@ -320,7 +321,7 @@ def STEP8_calc_pinchpoints():
                 resistances = npy.loadtxt(resistancesFile,
                                           dtype = 'Float64', comments='#')
 
-                resistance = float(arcpy.env.cellSize) * resistances[2]
+                resistance = float(str(arcpy.env.cellSize)) * resistances[2]
                 linkTable[link,cfg.LTB_EFFRESIST] = resistance
 
                 # Ratio
@@ -456,7 +457,7 @@ def STEP8_calc_pinchpoints():
 
         arcpy.env.extent = "MINOF"
 
-        options = lu.set_cs_options()
+        options = lu.setCircuitscapeOptions()
         options['scenario']=cfg.ALL_PAIR_SCENARIO
         options['habitat_file'] = resNpyFile
         options['point_file'] = coreNpyFile
@@ -466,7 +467,7 @@ def STEP8_calc_pinchpoints():
         options['print_timings']=True
         configFN = 'pinchpoint_allpair_config.ini'
         outConfigFile = path.join(CONFIGDIR, configFN)
-        lu.write_cs_cfg_file(outConfigFile, options)
+        lu.writeCircuitscapeConfigFile(outConfigFile, options)
         gprint('\nResistance map has ' + str(int(numResistanceNodes)) + ' nodes.')
         lu.dashline(1)
         gprint('If you try to cancel your run and the Arc dialog hangs, ')

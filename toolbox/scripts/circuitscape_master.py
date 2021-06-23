@@ -1,9 +1,11 @@
+#!/usr/bin/env python2
 # Author: Brad McRae
 
 """Master script for circuitscape analysis in linkage mapper.
 
 Reguired Software:
-ArcGIS Desktop 10.3+ or ArcGIS Pro with Spatial Analyst extension
+ArcGIS 10 with Spatial Analyst extension
+Python 2.6
 Numpy
 
 """
@@ -43,7 +45,8 @@ def circuitscape_master(argv=None):
     try:
         lu.create_dir(cfg.LOGDIR)
         lu.create_dir(cfg.MESSAGEDIR)
-        cfg.logFilePath = lu.create_log_file(cfg.MESSAGEDIR, cfg.TOOL, argv)
+        cfg.logFilePath = lu.create_log_file(cfg.MESSAGEDIR, cfg.TOOL,
+                                           cfg.PARAMS)
 
         if cfg.CSPATH is None:
             lu.raise_error("Cannot find an installation of Circuitscape"

@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 # Authors: John Gallo and Randal Greene 2017
 
 """Linkage Priority main module."""
@@ -391,7 +392,7 @@ def core_mean(in_rast, core_lyr, in_var):
     """Calculate the mean values of a raster within each core area."""
     tbl_name = "_".join(["core", in_var])
     mean_fld = ".".join([lm_env.CORENAME, in_var])
-    mean_value = "".join(["!", tbl_name, ".MEAN!"])
+    mean_value = "".join(["[", tbl_name, ".MEAN]"])
 
     mean_tbl = arcpy.sa.ZonalStatisticsAsTable(
         lm_env.COREFC, lm_env.COREFN, in_rast,
@@ -399,8 +400,7 @@ def core_mean(in_rast, core_lyr, in_var):
         statistics_type="MEAN")
     arcpy.AddJoin_management(core_lyr, lm_env.COREFN, mean_tbl,
                              lm_env.COREFN)
-    arcpy.CalculateField_management(core_lyr, mean_fld, mean_value,
-                                    "PYTHON_9.3")
+    arcpy.CalculateField_management(core_lyr, mean_fld, mean_value)
     arcpy.RemoveJoin_management(core_lyr)
     lm_util.delete_data(mean_tbl)
 
@@ -582,16 +582,14 @@ def calc_cav(core_lyr):
         if lm_env.ECAVWEIGHT > 0:
             lm_util.gprint("Warning: ECAVWEIGHT > 0 but no ecav field in  "
                            "Cores feature class")
-        arcpy.CalculateField_management(lm_env.COREFC, "ecav", "0",
-                                       "PYTHON_9.3")
+        arcpy.CalculateField_management(lm_env.COREFC, "ecav", "0")
     check_add_field(lm_env.COREFC, "necav", "DOUBLE")
 
     # Current flow centrality (CFC, CF_Central) is copied from
     # Centrality Mapper
     if not check_add_field(lm_env.COREFC, "CF_Central", "DOUBLE"):
         # Default to 0s
-        arcpy.CalculateField_management(lm_env.COREFC, "CF_Central", "0",
-                                        "PYTHON_9.3")
+        arcpy.CalculateField_management(lm_env.COREFC, "CF_Central", "0")
     if lm_env.CFCWEIGHT > 0:
         # Copy values from Centrality Mapper output
         # (core_centrality.gdb.project_Cores) if available
@@ -601,8 +599,8 @@ def calc_cav(core_lyr):
             arcpy.AddJoin_management(core_lyr, lm_env.COREFN,
                                      centrality_cores, lm_env.COREFN)
             arcpy.CalculateField_management(
-                core_lyr, lm_env.CORENAME + ".CF_Central",
-                "!" + lm_env.PREFIX + "_Cores.CF_Central!", "PYTHON_9.3")
+                core_lyr, lm_env.CORENAME + ".CF_Central", "[" +
+                lm_env.PREFIX + "_Cores.CF_Central]")
             arcpy.RemoveJoin_management(core_lyr)
         # Ensure cores have at least one non-0 value for CFC (could have been
         # copied above or set earlier)
@@ -760,10 +758,42 @@ def run_analysis():
                                       lm_env.OUTPUTFORMODELBUILDER)
 
 
-def log_setup(argv):
+def read_lm_params(proj_dir):
+    """Read Linkage Pathways input parameters from log file."""
+    # Get log file for last LM run
+    spath = os.path.join(proj_dir, "run_history", "log",
+                         "*_Linkage Mapper.txt")
+    entries = sorted(glob.glob(spath), key=os.path.getctime, reverse=True)
+    last_lm_log = next(iter(entries or []), None)
+    if not last_lm_log:
+        raise AppError("ERROR: Log file for last Linkage Mapper run not "
+                       "found. Please ensure Linkage Mapper is run "
+                       "for this project before running Linkage Priority.")
+
+    # Read parameters section from file and turn into tuple for passing
+    parms = ""
+    with open(last_lm_log) as log_file:
+        for line in log_file:
+            if line[0:13] == "Parameters:\t[":
+                parms = line[13:len(line) - 3].replace("\\\\", "\\")
+                break
+    if parms == "":
+        raise AppError("ERROR: Log file for last Linkage Mapper run does not "
+                       "contain a Parameters line")
+
+    return tuple(parms.replace("'", "").split(", "))
+
+
+def get_lm_params(argv):
+    """Get settings from Linkage Pathways inputs."""
+    lm_params = read_lm_params(argv[1])  # Pass in project dir
+    argv.append(lm_params[17])  # Get CWDTHRESH
+
+
+def log_setup():
     """Set up Linkage Mapper logging."""
     lm_env.logFilePath = lm_util.create_log_file(lm_env.MESSAGEDIR,
-                                                 lm_env.TOOL, argv)
+                                                 lm_env.TOOL, lm_env.PARAMS)
     lm_util.write_custom_to_log(lm_env.LPCUSTSETTINGS_IN)
 
 
@@ -774,10 +804,11 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv  # Get parameters from ArcGIS tool dialog
     try:
+        get_lm_params(argv)
         lm_env.configure(lm_env.TOOL_LP, argv)
         lm_util.gprint("\nLinkage Priority Version " + lm_env.releaseNum)
         lm_util.check_project_dir()
-        log_setup(argv)
+        log_setup()
         run_analysis()
     except AppError as err:
         lm_util.gprint(err.message)

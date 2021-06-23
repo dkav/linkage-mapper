@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 # Author: Brad McRae
 
 import os
@@ -10,14 +11,11 @@ import arcpy
 _SCRIPT_NAME = "lm_delete_cwds"
 
 
-def delete_cwd_dir(argv=None):
+def delete_cwd_dir():
     """Deletes cost-weighted distance directory and CWD rasters
 
     """
-    if argv is None:
-        argv = sys.argv  # Get parameters from ArcGIS tool dialog
-
-    projectDir = argv[1]
+    projectDir = sys.argv[1]
     cwdBaseDir = os.path.join(projectDir, "datapass\\cwd")
     try:
         if os.path.exists(cwdBaseDir):
@@ -33,7 +31,7 @@ def delete_cwd_dir(argv=None):
             for msg in range(0, arcpy.GetMessageCount() - 1):
                 if arcpy.GetSeverity(msg) == 2:
                     arcpy.AddReturnMessage(msg)
-                print(arcpy.AddReturnMessage(msg))
+                print arcpy.AddReturnMessage(msg)
             exit(0)
 
     return
