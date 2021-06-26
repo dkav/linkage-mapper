@@ -8,6 +8,7 @@ import subprocess
 from datetime import datetime as dt
 import time
 import traceback
+import platform
 
 # Support configparser in Python 2 and 3
 try:
@@ -21,11 +22,11 @@ import ctypes
 import locale
 from lm_retry_decorator import Retry
 
-
 import numpy as npy
 import arcpy
 
 from lm_config import tool_env as cfg
+
 try:
     test = cfg.releaseNum
 except Exception:
@@ -131,18 +132,18 @@ def drop_links(linktable, maxeud, mineud, maxcwd, mincwd,
             for x in range(0, numLinks):
                 linkid = str(int(linktable[x, cfg.LTB_LINKID]))
                 if linktable[x, cfg.LTB_CWDIST] == -1:
-                    #Check only enabled corridor links
+                    # Check only enabled corridor links
                     if (linktable[x, cfg.LTB_LINKTYPE] > 0):
                         corex = str(int(linktable[x, cfg.LTB_CORE1]))
                         corey = str(int(linktable[x, cfg.LTB_CORE2]))
                         gprint(
                             "The least-cost corridor between " + str(corex) +
                             " and " + str(corey) + " (link #" + linkid + ") "
-                            "has an unknown length in cost distance units. "
-                            "This means it is longer than the max "
-                            "cost-weighted distance specified in a previous "
-                            "step OR it passes through NODATA cells "
-                            "and will be dropped.\n")
+                                                                         "has an unknown length in cost distance units. "
+                                                                         "This means it is longer than the max "
+                                                                         "cost-weighted distance specified in a previous "
+                                                                         "step OR it passes through NODATA cells "
+                                                                         "and will be dropped.\n")
                         # Disable link
                         linktable[x, cfg.LTB_LINKTYPE] = cfg.LT_TLLC
                         numDroppedLinks = numDroppedLinks + 1
@@ -156,15 +157,15 @@ def drop_links(linktable, maxeud, mineud, maxcwd, mincwd,
                     if linktable[x, cfg.LTB_EUCDIST] > maxeud:
                         # Check only enabled corridor links
                         if (linktable[x, cfg.LTB_LINKTYPE] > 0) and (
-                            linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
+                                linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
                             corex = str(int(coreList[x, 0]))
                             corey = str(int(coreList[x, 1]))
                             gprint("Link #" + linkid +
-                                          " connecting cores " + str(corex) +
-                                          " and " + str(corey) + " is  " +
-                                          str(linktable[x, cfg.LTB_EUCDIST]) +
-                                          " units long- too long in "
-                                          "Euclidean distance.")
+                                   " connecting cores " + str(corex) +
+                                   " and " + str(corey) + " is  " +
+                                   str(linktable[x, cfg.LTB_EUCDIST]) +
+                                   " units long- too long in "
+                                   "Euclidean distance.")
                             # Disable link
                             linktable[x, cfg.LTB_LINKTYPE] = cfg.LT_TLEC
                             numDroppedLinks = numDroppedLinks + 1
@@ -172,7 +173,7 @@ def drop_links(linktable, maxeud, mineud, maxcwd, mincwd,
                 if maxcwd is not None:
                     # Check only enabled corridor links
                     if (linktable[x, cfg.LTB_LINKTYPE] > 0) and (
-                        linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
+                            linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
                         if (linktable[x, cfg.LTB_CWDIST] > maxcwd):
                             corex = str(int(linktable[x, cfg.LTB_CORE1]))
                             corey = str(int(linktable[x, cfg.LTB_CORE2]))
@@ -194,13 +195,13 @@ def drop_links(linktable, maxeud, mineud, maxcwd, mincwd,
                 if (linktable[x, cfg.LTB_LINKTYPE] > 0):
                     if mineud is not None:
                         if (linktable[x, cfg.LTB_EUCDIST] < mineud) and (
-                            linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
+                                linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
                             corex = str(int(coreList[x, 0]))
                             corey = str(int(coreList[x, 1]))
                             gprint(
                                 "Link #" + linkid + " connecting cores " +
                                 str(corex) + " and " + str(corey) + " is "
-                                "only " + str(linktable[x, cfg.LTB_EUCDIST]) +
+                                                                    "only " + str(linktable[x, cfg.LTB_EUCDIST]) +
                                 " units long- too short in Euclidean "
                                 "distance.")
                             # Disable link
@@ -210,7 +211,7 @@ def drop_links(linktable, maxeud, mineud, maxcwd, mincwd,
                     if mincwd is not None:
                         if ((linktable[x, cfg.LTB_CWDIST] < mincwd) and
                             (linktable[x, cfg.LTB_CWDIST]) != -1) and (
-                            linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
+                                linktable[x, cfg.LTB_LINKTYPE] != cfg.LT_KEEP):
                             if (linktable[x, cfg.LTB_LINKTYPE] > 0):
                                 corex = str(int(linktable[x, cfg.LTB_CORE1]))
                                 corey = str(int(linktable[x, cfg.LTB_CORE2]))
@@ -227,7 +228,6 @@ def drop_links(linktable, maxeud, mineud, maxcwd, mincwd,
         return linktable, numDroppedLinks
     except Exception:
         exit_with_python_error(_SCRIPT_NAME)
-
 
 
 def get_core_list(coreFC, coreFN):
@@ -247,17 +247,17 @@ def get_core_list(coreFC, coreFN):
         i = 0
         while row:
             if i > 0:
-                coreList = npy.append(coreList,  npy.zeros((1, 2)), axis=0)
+                coreList = npy.append(coreList, npy.zeros((1, 2)), axis=0)
             coreList[i, 0] = row.getValue(coreFN)
             coreList[i, 1] = row.getValue(coreFN)
             row = next(cur)
             i = i + 1
 
         del cur, row
-        coreCount=coreList.shape[0]
+        coreCount = coreList.shape[0]
         if coreCount < 2:
             dashline(1)
-            msg =('\nERROR: Less than two core areas detected. This can '
+            msg = ('\nERROR: Less than two core areas detected. This can '
                    '\nhappen if you have selected a core area in ArcMap. It '
                    '\ncan also happen when resistance and core area maps are '
                    '\nmissing spatial reference data or are in different '
@@ -274,7 +274,6 @@ def get_core_list(coreFC, coreFN):
         exit_with_python_error(_SCRIPT_NAME)
 
 
-
 def get_core_targets(core, linktable):
     """Returns a list of other core areas the core area is connected to."""
     try:
@@ -286,7 +285,7 @@ def get_core_targets(core, linktable):
         # Copy of cfg.LTB_LINKTYPE column
         validPair = linktable[:, cfg.LTB_LINKTYPE]
         validPair = npy.where((validPair == cfg.LT_KEEP), cfg.LT_CORR,
-                               validPair)
+                              validPair)
         validPair = npy.where((validPair == cfg.LT_CORR), 1, 0)  # map corridor.
         targetList[:, 0] = npy.multiply(targetList[:, 0], validPair)
         targetList[:, 1] = npy.multiply(targetList[:, 1], validPair)
@@ -345,10 +344,10 @@ def report_pct_done(current, goal, last):
     try:
         goal = float(goal)
         pctDone = ((float(current) / goal) * 100)
-        pctDone = 10 * (npy.floor(pctDone/10))
+        pctDone = 10 * (npy.floor(pctDone / 10))
         if pctDone - last >= 10:
             gprint(str(int(pctDone)) + " percent done")
-            return 10*int((npy.floor(pctDone/10)))
+            return 10 * int((npy.floor(pctDone / 10)))
         else:
             return last
     except Exception:
@@ -360,18 +359,18 @@ def report_links(linktable):
     try:
         numLinks = linktable.shape[0]
         gprint('There are ' + str(numLinks) + ' links in the '
-                          'table.')
+                                              'table.')
         linkTypes = linktable[:, cfg.LTB_LINKTYPE]
         numCorridorLinks = sum(linkTypes == cfg.LT_CORR) + sum(linkTypes ==
-                           cfg.LT_NNC) + sum(linkTypes == cfg.LT_KEEP)
+                                                               cfg.LT_NNC) + sum(linkTypes == cfg.LT_KEEP)
         numComponentLinks = sum(linkTypes == cfg.LT_CLU)
         if numComponentLinks > 0:
             gprint('This includes ' + str(numCorridorLinks) +
-                              ' potential corridor links and ' +
-                          str(numComponentLinks) + ' component links.')
+                   ' potential corridor links and ' +
+                   str(numComponentLinks) + ' component links.')
         elif numCorridorLinks > 0:
             gprint('This includes ' + str(numCorridorLinks) +
-                              ' potential corridor links.')
+                   ' potential corridor links.')
         else:
             numCorridorLinks = 0
             gprint('\n***NOTE: There are NO corridors to map!')
@@ -395,7 +394,6 @@ def build_stats(raster):
     except Exception:
         gprint('Pyramids failed. They can still be built manually.')
     return
-
 
 
 ############################################################################
@@ -463,7 +461,7 @@ def combine_adjacency_tables(adjTable_r, adjTable_u, adjTable_ur, adjTable_ul):
         x = 1
         while x < numDists:
             if (adjTable[x, 0] == adjTable[x - 1, 0] and
-                adjTable[x, 1] == adjTable[x - 1, 1]):
+                    adjTable[x, 1] == adjTable[x - 1, 1]):
                 adjTable[x - 1, 0] = 0  # mark for deletion
             x = x + 1
 
@@ -493,11 +491,11 @@ def get_allocs_from_shift(workspace, alloc, alloc_sh):
                      'comb_ras.save(combine_ras)')
         while True:
             try:
-                exec(statement)
+                exec (statement)
             except Exception:
                 count, tryAgain = retry_arc_error(count, statement)
                 if not tryAgain:
-                    exec(statement)
+                    exec (statement)
             else:
                 break
         allocLookupTable = get_alloc_lookup_table(arcpy.env.workspace,
@@ -569,11 +567,11 @@ def get_centroids(shapefile, field):
             xy = center.split(" ")
             if "," in xy[0] or "," in xy[1]:
                 msg = ('ERROR: It appears that your region settings are not in '
-                        'USA format (decimal commas are used instead of decimal '
-                        'points). '
-                    'Please change your region settings in Windows to English (USA) or '
-                    'another convention that uses decimal points.  You may need to'
-                    'modify the coordinate system of your input files as well.')
+                       'USA format (decimal commas are used instead of decimal '
+                       'points). '
+                       'Please change your region settings in Windows to English (USA) or '
+                       'another convention that uses decimal points.  You may need to'
+                       'modify the coordinate system of your input files as well.')
                 raise_error(msg)
             xyArray[0, 0] = float(xy[0])
             xyArray[0, 1] = float(xy[1])
@@ -622,7 +620,7 @@ def get_bounding_circle_data(extentBoxList, corex, corey, distbuff):
         centX = xmin + (xmax - xmin) / 2
         centY = ymin + (ymax - ymin) / 2
         radius = (npy.sqrt(pow((xmax - xmin) / 2, 2) +
-                  pow((ymax - ymin) / 2, 2)))
+                           pow((ymax - ymin) / 2, 2)))
         if distbuff != 0:
             radius = radius + int(distbuff)
         circlePointData[0, :] = [centX, centY, corex, corey, radius]
@@ -719,7 +717,7 @@ def make_points(workspace, pointArray, outFC):
 ## LCP Shapefile Functions #################################################
 ############################################################################
 
-def create_lcp_shapefile(ws,linktable, sourceCore, targetCore, lcpLoop):
+def create_lcp_shapefile(ws, linktable, sourceCore, targetCore, lcpLoop):
     """Creates lcp shapefile.
 
     Shows locations of least-cost path lines attributed with corridor
@@ -735,7 +733,7 @@ def create_lcp_shapefile(ws,linktable, sourceCore, targetCore, lcpLoop):
         lcpRas = os.path.join(ws, "lcp")
 
         arcpy.RasterToPolyline_conversion(lcpRas, lcpline, "NODATA", "",
-                                           "NO_SIMPLIFY")
+                                          "NO_SIMPLIFY")
 
         lcplineDslv = os.path.join(ws, "lcplineDslv.shp")
         arcpy.Dissolve_management(lcpline, lcplineDslv)
@@ -764,7 +762,7 @@ def create_lcp_shapefile(ws,linktable, sourceCore, targetCore, lcpLoop):
                                         int(targetCore), "PYTHON_9.3")
 
         arcpy.AddField_management(lcplineDslv, "Euc_Dist", "DOUBLE", "10",
-                                   "2")
+                                  "2")
         arcpy.CalculateField_management(lcplineDslv, "Euc_Dist",
                                         linktable[link, cfg.LTB_EUCDIST],
                                         "PYTHON_9.3")
@@ -774,7 +772,7 @@ def create_lcp_shapefile(ws,linktable, sourceCore, targetCore, lcpLoop):
                                         linktable[link, cfg.LTB_CWDIST],
                                         "PYTHON_9.3")
         arcpy.AddField_management(lcplineDslv, "LCP_Length", "DOUBLE", "10",
-                                   "2")
+                                  "2")
         rows = arcpy.UpdateCursor(lcplineDslv)
         row = next(rows)
         while row:
@@ -787,23 +785,23 @@ def create_lcp_shapefile(ws,linktable, sourceCore, targetCore, lcpLoop):
 
         try:
             distRatio1 = (float(linktable[link, cfg.LTB_CWDIST])
-                        / float(linktable[link, cfg.LTB_EUCDIST]))
+                          / float(linktable[link, cfg.LTB_EUCDIST]))
         except ZeroDivisionError:
             distRatio1 = -1
 
         arcpy.AddField_management(lcplineDslv, "cwd2Euc_R", "DOUBLE", "10",
-                                   "2")
+                                  "2")
         arcpy.CalculateField_management(lcplineDslv, "cwd2Euc_R", distRatio1,
                                         "PYTHON_9.3")
 
         try:
             distRatio2 = (float(linktable[link, cfg.LTB_CWDIST])
-                        / float(lcpLength))
+                          / float(lcpLength))
         except ZeroDivisionError:
             distRatio2 = -1
 
         arcpy.AddField_management(lcplineDslv, "cwd2Path_R", "DOUBLE", "10",
-                                   "2")
+                                  "2")
         arcpy.CalculateField_management(lcplineDslv, "cwd2Path_R", distRatio2,
                                         "PYTHON_9.3")
 
@@ -818,7 +816,7 @@ def create_lcp_shapefile(ws,linktable, sourceCore, targetCore, lcpLoop):
                     dashline(1)
                     msg = ('ERROR: Could not remove LCP shapefile ' +
                            lcpShapefile + '. Was it open in ArcMap?\n You may '
-                           'need to re-start ArcMap to release the file lock.')
+                                          'need to re-start ArcMap to release the file lock.')
                     raise_error(msg)
 
             arcpy.Copy_management(lcplineDslv, lcpShapefile)
@@ -846,25 +844,25 @@ def get_lcp_shapefile(lastStep, thisStep):
                 # step 3
                 oldLcpShapefile = os.path.join(
                     cfg.DATAPASSDIR, "lcpLines_s" + str(lastStep - 1) +
-                    ".shp")
+                                     ".shp")
 
         elif thisStep > 5:
-                # Steps not necessarily in order.  Look for highest step
-                # number.
-                lastStep = 8
-                while True:
-                    oldLcpShapefile = os.path.join(
-                        cfg.DATAPASSDIR, "lcpLines_s" + str(lastStep) + ".shp")
-                    if arcpy.Exists(oldLcpShapefile):
-                        break
-                    else:
-                        lastStep = lastStep - 1
-                        if lastStep == 2: # No previous shapefile found
-                            dashline(1)
-                            msg = ('ERROR: Could not find LCP shapefile from a '
-                                    '\nstep previous to step '+ str(thisStep)
-                                     +'.')
-                            raise_error(msg)
+            # Steps not necessarily in order.  Look for highest step
+            # number.
+            lastStep = 8
+            while True:
+                oldLcpShapefile = os.path.join(
+                    cfg.DATAPASSDIR, "lcpLines_s" + str(lastStep) + ".shp")
+                if arcpy.Exists(oldLcpShapefile):
+                    break
+                else:
+                    lastStep = lastStep - 1
+                    if lastStep == 2:  # No previous shapefile found
+                        dashline(1)
+                        msg = ('ERROR: Could not find LCP shapefile from a '
+                               '\nstep previous to step ' + str(thisStep)
+                               + '.')
+                        raise_error(msg)
 
         else:
             oldLcpShapefile = os.path.join(
@@ -897,15 +895,14 @@ def update_lcp_shapefile(linktable, lastStep, thisStep):
             linkTableTemp[:, cfg.LTB_CWDEUCR] = -1
             linkTableTemp[:, cfg.LTB_CWDPATHR] = -1
 
-
         if lastStep != thisStep:
             oldLcpShapefile = get_lcp_shapefile(lastStep, thisStep)
             delete_data(lcpShapefile)
             arcpy.Copy_management(oldLcpShapefile, lcpShapefile)
-            #if thisStep > 5:
-            arcpy.AddField_management(lcpShapefile, "Eff_Resist", "FLOAT") ###
+            # if thisStep > 5:
+            arcpy.AddField_management(lcpShapefile, "Eff_Resist", "FLOAT")  ###
             arcpy.AddField_management(lcpShapefile, "cwd2EffR_r", "FLOAT")
-            arcpy.AddField_management(lcpShapefile, "CF_Central", "FLOAT") ###
+            arcpy.AddField_management(lcpShapefile, "CF_Central", "FLOAT")  ###
         rows = arcpy.UpdateCursor(lcpShapefile)
         row = next(rows)
         line = 0
@@ -919,13 +916,13 @@ def update_lcp_shapefile(linktable, lastStep, thisStep):
                 current = linkTableTemp[linkid - 1, cfg.LTB_CURRENT]
                 effResist = linkTableTemp[linkid - 1, cfg.LTB_EFFRESIST]
                 CWDTORRatio = linkTableTemp[linkid - 1, cfg.LTB_CWDTORR]
-                #fixme: linkid - 1 assumes linktable ordered
+                # fixme: linkid - 1 assumes linktable ordered
                 row.setValue("Eff_Resist", effResist)
-                row.setValue("cwd2EffR_r",CWDTORRatio)
+                row.setValue("cwd2EffR_r", CWDTORRatio)
                 row.setValue("CF_Central", current)
             else:
                 row.setValue("Eff_Resist", -1)
-                row.setValue("cwd2EffR_r",-1)
+                row.setValue("cwd2EffR_r", -1)
                 row.setValue("CF_Central", -1)
             rows.updateRow(row)
 
@@ -942,7 +939,7 @@ def update_lcp_shapefile(linktable, lastStep, thisStep):
         del row, rows
 
         outputLcpShapefile = os.path.join(cfg.OUTPUTDIR, cfg.PREFIX +
-                                        "_lcpLines_s" + str(thisStep) + ".shp")
+                                          "_lcpLines_s" + str(thisStep) + ".shp")
         if arcpy.Exists(outputLcpShapefile):
             try:
                 arcpy.Delete_management(outputLcpShapefile)
@@ -1029,7 +1026,7 @@ def components_no_sparse(G):
         exit_with_python_error(_SCRIPT_NAME)
 
 
-def relabel(oldlabel, offset=0): # same as gapdt
+def relabel(oldlabel, offset=0):  # same as gapdt
     """Utility for components code
 
     From gapdt.py by Viral Shah
@@ -1045,7 +1042,7 @@ def relabel(oldlabel, offset=0): # same as gapdt
     return newlabel - 1 + offset
 
 
-def conditional_hooking (D, star, u, v):
+def conditional_hooking(D, star, u, v):
     """Utility for components code (updated Jan 2012)
 
     From gapdt.py by Viral Shah
@@ -1054,12 +1051,13 @@ def conditional_hooking (D, star, u, v):
     Du = D[u]
     Dv = D[v]
 
-    hook = npy.where ((star[u] == 1) & (Du > Dv))
+    hook = npy.where((star[u] == 1) & (Du > Dv))
     D[Du[hook]] = Dv[hook]
 
     return D
 
-def unconditional_hooking (D, star, u, v):
+
+def unconditional_hooking(D, star, u, v):
     """Utility for components code (updated Jan 2012)
 
     From gapdt.py by Viral Shah
@@ -1074,7 +1072,8 @@ def unconditional_hooking (D, star, u, v):
 
     return D
 
-def check_stars(D, star): # same as gapdt
+
+def check_stars(D, star):  # same as gapdt
     """Utility for components code
 
     From gapdt.py by Viral Shah
@@ -1095,7 +1094,7 @@ def load_link_table(linkTableFile):
     """Reads link table created by previous step """
     try:
         linkTable1 = npy.loadtxt(linkTableFile, dtype='Float64',
-                             comments='#', delimiter=',')
+                                 comments='#', delimiter=',')
         if len(linkTable1) == linkTable1.size:  # Just one connection
             linktable = npy.zeros((1, len(linkTable1)), dtype='Float64')
             linktable[:, 0:len(linkTable1)] = linkTable1[0:len(linkTable1)]
@@ -1129,7 +1128,7 @@ def create_log_file(message_dir, tool_name, in_parameters):
         ''.join([start_time.strftime("%Y_%m_%d_%H%M_"), tool_name, ".txt"]))
 
     with open(log_file, 'w') as lfile:
-        lfile.write('*'*70 + '\n')
+        lfile.write('*' * 70 + '\n')
         lfile.write('Linkage Mapper log file: %s \n\n' % (tool_name))
         lfile.write('Start time:\t%s \n' % (
             start_time.strftime("%H%M %Y-%m-%d")))
@@ -1137,6 +1136,9 @@ def create_log_file(message_dir, tool_name, in_parameters):
         for inpt, param in zip(cfg.inputs, in_parameters[1:]):
             lfile.write("{} : {}\n".format(inpt, param))
         lfile.write("\n")
+        lfile.write(process_info())
+        lfile.write("\n")
+
     dashline()
     gprint('A record of run settings and messages can be found in your '
            'log directory:')
@@ -1148,11 +1150,11 @@ def create_log_file(message_dir, tool_name, in_parameters):
 
 def write_log(string):
     try:
-        logFile=open(cfg.logFilePath,'a')
+        logFile = open(cfg.logFilePath, 'a')
     except Exception:
-        logFile=open(cfg.logFilePath,'w')
+        logFile = open(cfg.logFilePath, 'w')
     try:
-        #Sometimes int objects returned for arc failures so need str below
+        # Sometimes int objects returned for arc failures so need str below
         logFile.write(str(string) + '\n')
     except IOError:
         pass
@@ -1187,7 +1189,7 @@ def write_link_table(linktable, outlinkTableFile, *inLinkTableFile):
 
         if linktable.shape[1] == 10:
             outFile.write("# link,coreId1,coreId2,cluster1,cluster2,linkType,"
-                           "eucDist,lcDist,eucAdj,cwdAdj\n")
+                          "eucDist,lcDist,eucAdj,cwdAdj\n")
 
             for x in range(0, numLinks):
                 for y in range(0, 9):
@@ -1197,26 +1199,25 @@ def write_link_table(linktable, outlinkTableFile, *inLinkTableFile):
 
         elif linktable.shape[1] == 13:
             outFile.write("#link,coreId1,coreId2,cluster1,cluster2,linkType,"
-                           "eucDist,lcDist,eucAdj,cwdAdj,lcpLength,"
-                           "cwdToEucRatio,cwdToPathRatio\n")
+                          "eucDist,lcDist,eucAdj,cwdAdj,lcpLength,"
+                          "cwdToEucRatio,cwdToPathRatio\n")
 
             for x in range(0, numLinks):
                 for y in range(0, 12):
                     outFile.write(str(linktable[x, y]) + ",")
                 outFile.write(str(linktable[x, 12]))
                 outFile.write("\n")
-        else: #Called from pinch point or centrality tool, has 16 columns
+        else:  # Called from pinch point or centrality tool, has 16 columns
             outFile.write("#link,coreId1,coreId2,cluster1,cluster2,linkType,"
-                           "eucDist,lcDist,eucAdj,cwdAdj,lcpLength,"
-                           "cwdToEucRatio,cwdToPathRatio,Eff_Resist,"
-                           "CWDTORRatio,CF_Centrality\n")
+                          "eucDist,lcDist,eucAdj,cwdAdj,lcpLength,"
+                          "cwdToEucRatio,cwdToPathRatio,Eff_Resist,"
+                          "CWDTORRatio,CF_Centrality\n")
 
             for x in range(0, numLinks):
                 for y in range(0, 15):
                     outFile.write(str(linktable[x, y]) + ",")
                 outFile.write(str(linktable[x, 15]))
                 outFile.write("\n")
-
 
         outFile.write("# Linkage Mapper Version " + cfg.releaseNum)
         outFile.write("\n# ---Run Settings---")
@@ -1227,45 +1228,45 @@ def write_link_table(linktable, outlinkTableFile, *inLinkTableFile):
             outFile.write("\n# Core Area Field Name: " + cfg.COREFN)
             outFile.write("\n# Resistance Raster: " + cfg.RESRAST_IN)
             outFile.write("\n# Step 1 - Identify Adjacent Core Areas: " +
-                           str(cfg.STEP1))
+                          str(cfg.STEP1))
             outFile.write("\n# Step 1 Adjacency Method Includes Cost-Weighted "
-                           "Distance: " + str(cfg.S1ADJMETH_CW))
+                          "Distance: " + str(cfg.S1ADJMETH_CW))
             outFile.write("\n# Step 1 Adjacency Method Includes Euclidean "
-                           "Distance: " + str(cfg.S1ADJMETH_EU))
+                          "Distance: " + str(cfg.S1ADJMETH_EU))
             outFile.write("\n# Step 2 - Construct a Network of Core Areas: " +
-                           str(cfg.STEP2))
+                          str(cfg.STEP2))
             outFile.write("\n# Conefor Distances Text File: " +
                           str(cfg.S2EUCDISTFILE))
             outFile.write("\n# Network Adjacency Method Includes Cost-Weighted "
-                           "Distance: " + str(cfg.S2ADJMETH_CW))
+                          "Distance: " + str(cfg.S2ADJMETH_CW))
             outFile.write("\n# Network Adjacency Method Includes Euclidean "
-                           "Distance: " + str(cfg.S2ADJMETH_EU))
+                          "Distance: " + str(cfg.S2ADJMETH_EU))
             outFile.write("\n# Step 3 - Calculate Cost-Weighted Distances and "
-                           "Least-Cost Paths: " + str(cfg.STEP3))
+                          "Least-Cost Paths: " + str(cfg.STEP3))
             outFile.write("\n# Drop Corridors that Intersect Core Areas: "
-                           + str(cfg.S3DROPLCCS))
+                          + str(cfg.S3DROPLCCS))
             outFile.write("\n# Step 4 - Refine Network: " + str(cfg.STEP4))
             if cfg.IGNORES4MAXNN:
                 outFile.write("\n# Option A - Number of Connected Nearest Neighbors: Unlimimted")
             else:
                 outFile.write("\n# Option A - Number of Connected Nearest Neighbors: "
-                               + str(cfg.S4MAXNN))
+                              + str(cfg.S4MAXNN))
             outFile.write("\n# Option B - Nearest Neighbor Measurement Unit is "
-                           "Cost-Weighted Distance: " + str(cfg.S4DISTTYPE_CW))
+                          "Cost-Weighted Distance: " + str(cfg.S4DISTTYPE_CW))
             outFile.write("\n# Option C - Connect Neighboring Constellations : "
-                           + str(cfg.S4CONNECT))
+                          + str(cfg.S4CONNECT))
             outFile.write("\n# Step 5 - Calculate Normalize and Mosaic "
-                           "Corridors: " + str(cfg.STEP5))
+                          "Corridors: " + str(cfg.STEP5))
             outFile.write("\n# Bounding Circles Buffer Distance: "
-                           + str(cfg.BUFFERDIST))
+                          + str(cfg.BUFFERDIST))
             outFile.write("\n# Maximum Cost-Weighted Corridor Distance: "
-                           + str(cfg.MAXCOSTDIST))
+                          + str(cfg.MAXCOSTDIST))
             outFile.write("\n# Maximum Euclidean Corridor Distance: "
-                           + str(cfg.MAXEUCDIST))
+                          + str(cfg.MAXEUCDIST))
             outFile.write("\n# Minimum Cost-Weighted Corridor Distance: "
-                           + str(cfg.MINCOSTDIST))
+                          + str(cfg.MINCOSTDIST))
             outFile.write("\n# Minimum Euclidean Corridor Distance: "
-                           + str(cfg.MINEUCDIST))
+                          + str(cfg.MINEUCDIST))
 
         elif cfg.TOOL == cfg.TOOL_CS:
             def write_core_info():
@@ -1377,7 +1378,7 @@ def write_link_maps(linkTableFile, step):
 
         coreLinksShapefile = cfg.PREFIX + '_sticks_s' + str(step) + '.shp'
 
-        file = os.path.join(arcpy.env.workspace,coreLinksShapefile)
+        file = os.path.join(arcpy.env.workspace, coreLinksShapefile)
         if arcpy.Exists(file):
             try:
                 arcpy.Delete_management(file)
@@ -1385,7 +1386,7 @@ def write_link_maps(linkTableFile, step):
                 dashline(1)
                 msg = ('ERROR: Could not remove shapefile ' +
                        coreLinksShapefile + '. Was it open in ArcMap?\n You may '
-                       'need to re-start ArcMap to release the file lock.')
+                                            'need to re-start ArcMap to release the file lock.')
                 raise_error(msg)
 
         # make coreLinks.shp using linkCoords table
@@ -1405,29 +1406,28 @@ def write_link_maps(linkTableFile, step):
         arcpy.AddField_management(coreLinksShapefile, "Eff_Resist", "FLOAT")
         arcpy.AddField_management(coreLinksShapefile, "cwd2EffR_r", "FLOAT")
         arcpy.AddField_management(coreLinksShapefile, "CF_Central", "FLOAT")
-        #Create an Array and Point object.
+        # Create an Array and Point object.
         lineArray = arcpy.Array()
         pnt = arcpy.Point()
 
-        #Open a cursor to insert rows into the shapefile.
+        # Open a cursor to insert rows into the shapefile.
         cur = arcpy.InsertCursor(coreLinksShapefile)
 
         ##Loop through each record in linkCoords table
         for i in range(0, numLinks):
-
-            #Set the X and Y coordinates for origin vertex.
+            # Set the X and Y coordinates for origin vertex.
             pnt.X = linkCoords[i, 5]
             pnt.Y = linkCoords[i, 6]
-            #Insert it into the line array
+            # Insert it into the line array
             lineArray.add(pnt)
 
-            #Set the X and Y coordinates for destination vertex
+            # Set the X and Y coordinates for destination vertex
             pnt.X = linkCoords[i, 7]
             pnt.Y = linkCoords[i, 8]
-            #Insert it into the line array
+            # Insert it into the line array
             lineArray.add(pnt)
 
-            #Insert the new poly into the feature class.
+            # Insert the new poly into the feature class.
             feature = cur.newRow()
             feature.shape = lineArray
             cur.insertRow(feature)
@@ -1435,7 +1435,7 @@ def write_link_maps(linkTableFile, step):
             lineArray.removeAll()
         del cur
 
-        #Add attribute data to link shapefile
+        # Add attribute data to link shapefile
         rows = arcpy.UpdateCursor(coreLinksShapefile)
         row = next(rows)
         line = 0
@@ -1468,7 +1468,7 @@ def write_link_maps(linkTableFile, step):
 
         del row, rows
 
-        #clean up temp files
+        # clean up temp files
         delete_data(coresForLinework)
 
         return
@@ -1487,7 +1487,7 @@ def set_dataframe_sr():
     try:
         sr = arcpy.Describe(cfg.COREFC).spatialReference
         gprint('Setting data frame spatial reference to that of '
-                'core area feature class.')
+               'core area feature class.')
     except Exception:
         try:
             sr = arcpy.Describe(cfg.RESRAST).spatialReference
@@ -1505,7 +1505,7 @@ def create_dir(lmfolder):
     """Creates folder if it doesn't exist."""
     if not os.path.exists(lmfolder):
         arcpy.CreateFolder_management(os.path.dirname(lmfolder),
-                                       os.path.basename(lmfolder))
+                                      os.path.basename(lmfolder))
 
 
 def move_old_results():
@@ -1574,7 +1574,7 @@ def clean_out_workspace(ws):
         arcpy.env.workspace = ws
         datasets = arcpy.ListDatasets()
         for data in datasets:
-                delete_data(data)
+            delete_data(data)
         arcpy.env.workspace = cur_ws
 
 
@@ -1618,11 +1618,11 @@ def get_focal_path(core, radius):
     focalDir1 = cfg.FOCALSUBDIR1_NM + str(radius)
     if dirCount > 0:
         return os.path.join(cfg.BARRIERBASEDIR, focalDir1,
-                         cfg.FOCALSUBDIR2_NM + str(dirCount),
-                         cfg.FOCALGRID_NM + str(core))
+                            cfg.FOCALSUBDIR2_NM + str(dirCount),
+                            cfg.FOCALGRID_NM + str(core))
     else:
         return os.path.join(cfg.BARRIERBASEDIR, focalDir1,
-                         cfg.FOCALSUBDIR2_NM, cfg.FOCALGRID_NM + str(core))
+                            cfg.FOCALSUBDIR2_NM, cfg.FOCALGRID_NM + str(core))
 
 
 def check_project_dir():
@@ -1638,18 +1638,19 @@ def check_project_dir():
 
     if "-" in cfg.PROJECTDIR or " " in cfg.PROJECTDIR or "." in cfg.PROJECTDIR:
         msg = ('ERROR: Project directory cannot contain spaces, dashes, or '
-                'special characters.')
+               'special characters.')
         raise_error(msg)
-    head=cfg.PROJECTDIR
-    for i in range(1,100):
-        if len(head) < 4: # We've gotten to the base of the tree
+    head = cfg.PROJECTDIR
+    for i in range(1, 100):
+        if len(head) < 4:  # We've gotten to the base of the tree
             break
-        head,tail=os.path.split(head)
+        head, tail = os.path.split(head)
         if tail[0].isdigit():
             msg = ('ERROR: No directory names in project directory path can start with a number or '
-                    'else Arc will crash. Please change name of "' + tail + '" or choose a new directory.')
+                   'else Arc will crash. Please change name of "' + tail + '" or choose a new directory.')
             raise_error(msg)
     return
+
 
 def get_prev_step_link_table(step):
     """Returns the name of the link table created by the previous step"""
@@ -1657,7 +1658,7 @@ def get_prev_step_link_table(step):
         prevStep = step - 1
         if step > 5:
             prevStepLinkTable = os.path.join(cfg.DATAPASSDIR,
-                                         'linkTable_s5_plus.csv')
+                                             'linkTable_s5_plus.csv')
             gprint('\nLooking for ' + prevStepLinkTable)
 
             if os.path.exists(prevStepLinkTable):
@@ -1682,13 +1683,13 @@ def get_prev_step_link_table(step):
         prevStepLinkTable = os.path.join(cfg.DATAPASSDIR, 'linkTable_s' +
                                          str(prevStep) + '.csv')
         gprint('\nLooking for ' + cfg.DATAPASSDIR +
-                          '\linkTable_s' + str(prevStep) + '.csv')
+               '\linkTable_s' + str(prevStep) + '.csv')
         if os.path.exists(prevStepLinkTable):
             return prevStepLinkTable
         else:
             msg = ('\nERROR: Could not find a linktable from step previous to '
                    'step #' + str(step) + ' in datapass directory.  See above '
-                   'for valid linktable files.')
+                                          'for valid linktable files.')
             raise_error(msg)
 
     except arcpy.ExecuteError:
@@ -1705,7 +1706,7 @@ def get_this_step_link_table(step):
 
         else:
             filename = os.path.join(cfg.DATAPASSDIR, 'linkTable_s' + str(step)
-                             + '.csv')
+                                    + '.csv')
         return filename
 
     except arcpy.ExecuteError:
@@ -1725,8 +1726,8 @@ def clean_up_link_tables(step):
             filename = os.path.join(cfg.DATAPASSDIR, 'linkTable_s' +
                                     str(stepNum) + '.csv')
             delete_file(filename)
-            lcpFC = os.path.join(cfg.DATAPASSDIR,'lcpLines_s' +
-                                    str(stepNum) + '.shp')
+            lcpFC = os.path.join(cfg.DATAPASSDIR, 'lcpLines_s' +
+                                 str(stepNum) + '.shp')
             delete_data(lcpFC)
         filename = os.path.join(cfg.OUTPUTDIR, 'linkTable_final.csv')
         delete_file(filename)
@@ -1753,34 +1754,32 @@ def copy_final_link_maps(step):
 
         if not arcpy.Exists(cfg.LINKMAPGDB):
             arcpy.CreateFileGDB_management(os.path.dirname(cfg.LINKMAPGDB),
-                             os.path.basename(cfg.LINKMAPGDB))
+                                           os.path.basename(cfg.LINKMAPGDB))
 
         if not arcpy.Exists(cfg.LOGLINKMAPGDB):
             arcpy.CreateFileGDB_management(os.path.dirname(cfg.LOGLINKMAPGDB),
-                             os.path.basename(cfg.LOGLINKMAPGDB))
+                                           os.path.basename(cfg.LOGLINKMAPGDB))
 
         if arcpy.Exists(coreLinksShapefile):
             arcpy.MakeFeatureLayer_management(coreLinksShapefile, "flinks")
 
-
             field = "Active"
             expression = field + " = " + str(1)
             arcpy.SelectLayerByAttribute_management("flinks", "NEW_SELECTION",
-                                          expression)
+                                                    expression)
 
             activeLinksShapefile = os.path.join(cfg.LINKMAPGDB,
-                                               PREFIX + '_Sticks')
+                                                PREFIX + '_Sticks')
             arcpy.CopyFeatures_management("flinks", activeLinksShapefile)
 
             rename_fields(activeLinksShapefile)
 
             expression = field + " = " + str(0)
             arcpy.SelectLayerByAttribute_management("flinks", "NEW_SELECTION",
-                                          expression)
+                                                    expression)
             inActiveLinksShapefile = os.path.join(cfg.LINKMAPGDB,
                                                   PREFIX + '_Inactive_Sticks')
             arcpy.CopyFeatures_management("flinks", inActiveLinksShapefile)
-
 
         if arcpy.Exists(lcpShapefile):
             arcpy.MakeFeatureLayer_management(lcpShapefile, "flcp")
@@ -1797,7 +1796,7 @@ def copy_final_link_maps(step):
             expression = field + " = " + str(0)
             arcpy.SelectLayerByAttribute_management("flcp", "NEW_SELECTION", expression)
             inActiveLcpShapefile = os.path.join(cfg.LINKMAPGDB,
-                                               PREFIX + '_Inactive_LCPs')
+                                                PREFIX + '_Inactive_LCPs')
             arcpy.CopyFeatures_management("flcp", inActiveLcpShapefile)
 
         # Move stick and lcp maps for each step to log directory to reduce
@@ -1805,13 +1804,13 @@ def copy_final_link_maps(step):
         for i in range(2, 9):
             # delete log file from pre 0.7.7 versions
             oldLogLinkFile = os.path.join(cfg.LOGDIR, PREFIX + '_sticks_s'
-                                        + str(i) + '.shp')
+                                          + str(i) + '.shp')
             delete_data(oldLogLinkFile)
 
             oldLinkFile = os.path.join(cfg.OUTPUTDIR, PREFIX + '_sticks_s'
-                                        + str(i) + '.shp')
+                                       + str(i) + '.shp')
             logLinkFile = os.path.join(cfg.LOGLINKMAPGDB, PREFIX + '_sticks_s'
-                                        + str(i))
+                                       + str(i))
             if arcpy.Exists(oldLinkFile):
                 try:
                     move_map(oldLinkFile, logLinkFile)
@@ -1820,7 +1819,7 @@ def copy_final_link_maps(step):
 
             # delete log file from pre 0.7.7 versions
             oldLogLcpShapeFile = os.path.join(cfg.LOGDIR, PREFIX + '_lcpLines_s' +
-                                           str(i) + '.shp')
+                                              str(i) + '.shp')
             delete_data(oldLogLcpShapeFile)
             oldLcpShapeFile = os.path.join(cfg.OUTPUTDIR, PREFIX + '_lcpLines_s'
                                            + str(i) + '.shp')
@@ -1924,6 +1923,7 @@ def rename_fields(FC):
     except Exception:
         exit_with_python_error(_SCRIPT_NAME)
 
+
 ############################################################################
 ##Error Checking and Handling Functions ####################################
 ############################################################################
@@ -1947,21 +1947,21 @@ def print_drive_warning():
     drive, depth, realpath = get_dir_depth(cfg.PROJECTDIR)
     if drive.lower() != 'c' or depth > 3 or 'dropbox' in realpath.lower():
         gprint('NOTE: ArcGIS errors are more likely when writing to remote '
-            'drives or deep file structures. We recommend shallow '
-            'project directories on local drives, like C:\puma. '
-            'Errors may also result from conflicts with anti-virus '
-            'software (known problems with AVG). We have also seen '
-            'conflicts when writing to synchronized folders like DROPBOX.\n\n'
-            'Note also that Linkage Mapper tools often work best when run '
-            'from ArcCatalog instead of ArcMap. \n ')
+               'drives or deep file structures. We recommend shallow '
+               'project directories on local drives, like C:\puma. '
+               'Errors may also result from conflicts with anti-virus '
+               'software (known problems with AVG). We have also seen '
+               'conflicts when writing to synchronized folders like DROPBOX.\n\n'
+               'Note also that Linkage Mapper tools often work best when run '
+               'from ArcCatalog instead of ArcMap. \n ')
     else:
         gprint('NOTE: Linkage Mapper tools often work best when run  '
-            'from ArcCatalog instead of ArcMap. \n')
+               'from ArcCatalog instead of ArcMap. \n')
     localdict = locale.localeconv()
     if localdict['decimal_point'] != '.':
         msg = ('ERROR: It looks like decimals are indicated by commas instead of decimal points.\n'
-            'Try changing your Windows Regional and Language settings to English (United States)\n'
-            'or another convention that uses decimal points.\n')
+               'Try changing your Windows Regional and Language settings to English (United States)\n'
+               'or another convention that uses decimal points.\n')
         raise_error(msg)
 
 
@@ -1976,29 +1976,29 @@ def get_dir_depth(dir):
     return drive, depth, realpath
 
 
-def check_cores(FC,FN):
+def check_cores(FC, FN):
     """Checks for positive integer core IDs with appropriate naming."""
     try:
         if not cfg.STEP1:
             try:
                 adjList = npy.loadtxt(cfg.EUCADJFILE, dtype='string',
-                                         comments = "x", delimiter=',')
-                prevCoreFN =adjList[0,1]
-            except Exception: # If file not found
+                                      comments="x", delimiter=',')
+                prevCoreFN = adjList[0, 1]
+            except Exception:  # If file not found
                 prevCoreFN = cfg.COREFN
             if prevCoreFN != cfg.COREFN:
                 msg = ('\nError: Core field name must be the same as used in '
-                        'Linkage Mapper step 1 ("' + prevCoreFN + '"). '
-                        '\nPlease make sure you are using the same core area '
-                        'file and resistance raster as well.')
+                       'Linkage Mapper step 1 ("' + prevCoreFN + '"). '
+                                                                 '\nPlease make sure you are using the same core area '
+                                                                 'file and resistance raster as well.')
                 raise_error(msg)
 
-        invalidFNs = ['fid','id','oid','shape']
+        invalidFNs = ['fid', 'id', 'oid', 'shape']
         if FN.lower() in invalidFNs:
             dashline(1)
             msg = ('ERROR: Core area field name "ID", "FID", "OID", and "Shape" '
                    'are reserved for ArcGIS. Please choose another field- '
-                    'must be a positive integer.')
+                   'must be a positive integer.')
             raise_error(msg)
 
         cid_field = arcpy.ListFields(FC, FN)[0]
@@ -2006,7 +2006,7 @@ def check_cores(FC,FN):
             dashline(1)
             raise_error('ERROR: Core area field must be in Integer format.')
 
-        coreList = get_core_list(FC,FN)
+        coreList = get_core_list(FC, FN)
         if npy.amin(coreList) < 1:
             dashline(1)
             msg = ('ERROR: Core area field must contain only positive integers. ')
@@ -2019,11 +2019,11 @@ def check_cores(FC,FN):
         xy = center.split(" ")
         if "," in xy[0]:
             msg = ('ERROR: It appears that your region settings are not in '
-                  'USA format (decimal commas are used instead of decimal '
-                  'points). '
-                  'Please change your region settings in Windows to English (USA) or '
-                  'another convention that uses decimal points.  You may need to'
-                  'to modify the coordinate system of your input files as well.')
+                   'USA format (decimal commas are used instead of decimal '
+                   'points). '
+                   'Please change your region settings in Windows to English (USA) or '
+                   'another convention that uses decimal points.  You may need to'
+                   'to modify the coordinate system of your input files as well.')
             raise_error(msg)
 
     except arcpy.ExecuteError:
@@ -2037,17 +2037,17 @@ def retry_arc_error(count, statement):
     try:
         if count < 5:
             count = count + 1
-            sleepTime = 20*count
+            sleepTime = 20 * count
 
             arcpy.AddWarning('-------------------------------------------------')
             arcpy.AddWarning('Failed to execute ' + statement + ' on try '
-                              '#' + str(count) + '.\n')
+                                                                '#' + str(count) + '.\n')
 
             print_warnings()
 
             arcpy.AddWarning("Will try again. ")
             arcpy.AddWarning('---------TRYING AGAIN IN ' +
-                                   str(int(sleepTime)) + ' SECONDS---------\n')
+                             str(int(sleepTime)) + ' SECONDS---------\n')
             snooze(sleepTime)
             return count, True
 
@@ -2055,8 +2055,8 @@ def retry_arc_error(count, statement):
             sleepTime = 300
             count = count + 1
             arcpy.AddWarning('Failed to execute ' + statement + ' on try #' +
-                        str(count) + '.\n Could be an ArcGIS hiccup.  Trying'
-                        ' again in 5 minutes.\n')
+                             str(count) + '.\n Could be an ArcGIS hiccup.  Trying'
+                                          ' again in 5 minutes.\n')
             snooze(sleepTime)
 
             return count, True
@@ -2065,8 +2065,8 @@ def retry_arc_error(count, statement):
             sleepTime = 300
             count = count + 1
             arcpy.AddWarning('Failed to execute ' + statement + ' on try #' +
-                        str(count) + '.\n Could be an ArcGIS hiccup.  Trying'
-                        ' one last time in 5 minutes.\n')
+                             str(count) + '.\n Could be an ArcGIS hiccup.  Trying'
+                                          ' one last time in 5 minutes.\n')
             snooze(sleepTime)
 
             return count, False
@@ -2084,7 +2084,7 @@ def print_warnings():
 
     if arcpy.GetMaxSeverity() > 1:
         msg = ("The following ArcGIS error is being reported "
-                    "on line " + line + " of " + filename + ":")
+               "on line " + line + " of " + filename + ":")
         arcpy.AddWarning(msg)
         write_log(msg)
         arcpy.AddWarning(arcpy.GetMessages(2))
@@ -2093,7 +2093,7 @@ def print_warnings():
 
     else:
         msg = ("The following error is being reported at "
-                        + line + " of " + filename + ":")
+               + line + " of " + filename + ":")
         err = traceback.format_exc().splitlines()[-1]
         arcpy.AddWarning(msg)
         arcpy.AddWarning(err + '\n')
@@ -2102,11 +2102,10 @@ def print_warnings():
 
 
 def snooze(sleepTime):
-    for i in range(1,int(sleepTime)+1):
+    for i in range(1, int(sleepTime) + 1):
         time.sleep(1)
         # Dummy operations to give user ability to cancel:
         installD = arcpy.GetInstallInfo("desktop")
-
 
 
 def exit_with_geoproc_error(filename):
@@ -2117,11 +2116,12 @@ def exit_with_geoproc_error(filename):
     tbinfo = traceback.format_tb(tb)[0]
     line = tbinfo.split(", ")[1]
     msg = ("Geoprocessing error on **" + line + "** of " + filename + " "
-                "in Linkage Mapper Version " + str(cfg.releaseNum) + ":")
+                                                                      "in Linkage Mapper Version " + str(
+        cfg.releaseNum) + ":")
     arcpy.AddError(msg)
-    write_log(msg) #xxx
+    write_log(msg)  # xxx
     dashline(1)
-    msg=arcpy.GetMessages(2)
+    msg = arcpy.GetMessages(2)
     arcpy.AddError(arcpy.GetMessages(2))
     write_log(msg)
     dashline()
@@ -2140,7 +2140,7 @@ def exit_with_python_error(filename):
 
     err = traceback.format_exc().splitlines()[-1]
     msg = ("Python error on **" + line + "** of " + filename + " "
-                "in Linkage Mapper Version " + str(cfg.releaseNum) + ":")
+                                                               "in Linkage Mapper Version " + str(cfg.releaseNum) + ":")
     arcpy.AddError(msg)
     arcpy.AddError(err)
     write_log(msg)
@@ -2278,16 +2278,75 @@ class MEMORYSTATUSEX(ctypes.Structure):
                 ("ullAvailPageFile", ctypes.c_ulonglong),
                 ("ullTotalVirtual", ctypes.c_ulonglong),
                 ("ullAvailVirtual", ctypes.c_ulonglong),
-                ("sullAvailExtendedVirtual", ctypes.c_ulonglong),]
+                ("sullAvailExtendedVirtual", ctypes.c_ulonglong), ]
 
     def __init__(self):
         # have to initialize this to the size of MEMORYSTATUSEX
-        self.dwLength = 2*4 + 7*8     # size = 2 ints, 7 longs
+        self.dwLength = 2 * 4 + 7 * 8  # size = 2 ints, 7 longs
         return super(MEMORYSTATUSEX, self).__init__()
+
 
 def get_mem():
     stat = MEMORYSTATUSEX()
     ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
-    totMem = float(int(10 * float(stat.ullTotalPhys)/1073741824))/10
-    availMem = float(int(10 * float(stat.ullAvailPhys)/1073741824))/10
+    totMem = float(int(10 * float(stat.ullTotalPhys) / 1073741824)) / 10
+    availMem = float(int(10 * float(stat.ullAvailPhys) / 1073741824)) / 10
     return totMem, availMem
+
+
+def process_info():
+    # pc information
+    try:
+        inf = 'System and data information:\n'
+        inf += 'Operating system: ' + platform.platform() + '\n'
+        inf += 'Processor type: ' + platform.processor() + '\n'
+        inf += 'Arc version: ' + str(arcpy.GetInstallInfo("desktop")['Version']) + '\n'
+        totMem, avilMem = get_mem()
+        inf += 'Total & Available RAM: ' + str(totMem) + ' & ' + str(avilMem) + '\n'
+    except:
+        inf += 'Error occurred while extracting system information\n'
+    # metadata
+    if cfg.TOOL == 'Linkage Mapper' or cfg.TOOL == 'Linkage Priority' or \
+            cfg.TOOL == 'Circuitscape' or cfg.TOOL == 'Barrier mapper':
+        try:
+            reslayer = arcpy.Describe(cfg.RESRAST_IN)
+            if cfg.TOOL != 'Barrier mapper':
+                corelayer = arcpy.Describe(cfg.COREFC).SpatialReference.name
+                numcores = get_core_list(cfg.COREFC, cfg.COREFN)
+        except:
+            inf += 'Error occurred while reading input layers\n'
+        else:
+            if cfg.TOOL != 'Barrier mapper':
+                inf += 'Coordinate system of core layer: ' + corelayer + '\n'
+                inf += 'Number of cores: ' + str(numcores.shape[0]) + '\n'
+            inf += 'Coordinate system of resistance layer: ' + \
+                   reslayer.SpatialReference.name + '\n'
+            inf += 'Cell size & units: ' + str(reslayer.meanCellHeight) + ' & ' \
+                   + reslayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Resistance layer size in pixels (width, height): ' + str(reslayer.width) \
+                   + ', ' + str(reslayer.height) + '\n'
+
+    elif cfg.TOOL == 'Climate Linkage Mapper':
+        try:
+            corelayer = arcpy.Describe(cfg.core_fc).SpatialReference.name
+            numcores = get_core_list(cfg.core_fc, cfg.core_fld)
+            climlayer = arcpy.Describe(cfg.climate_rast)
+            reslayer = arcpy.Describe(cfg.resist_rast)
+        except:
+            inf += 'Error occurred while reading input layers\n'
+        else:
+            inf += 'Coordinate system of core layer: ' + corelayer + '\n'
+            inf += 'Number of cores: ' + str(numcores.shape[0]) + '\n'
+            inf += 'Coordinate system of climate layer: ' + \
+                   climlayer.SpatialReference.name + '\n'
+            inf += "Climate layer's cell size & units: " + str(climlayer.meanCellHeight) + ' & ' \
+                   + climlayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Climate layer size in pixels (width, height): ' + str(climlayer.width) \
+                   + ', ' + str(climlayer.height) + '\n'
+            inf += 'Coordinate system of resistance layer: ' + \
+                   reslayer.SpatialReference.name + '\n'
+            inf += "Resistance layer's cell size & units: " + str(reslayer.meanCellHeight) + ' & ' \
+                   + reslayer.SpatialReference.linearUnitName + '\n'
+            inf += 'Resistance layer size in pixels (width, height): ' + str(reslayer.width) \
+                   + ', ' + str(reslayer.height) + '\n'
+    return inf
