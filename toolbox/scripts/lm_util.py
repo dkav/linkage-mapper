@@ -1133,9 +1133,10 @@ def create_log_file(message_dir, tool_name, in_parameters):
         lfile.write('Linkage Mapper log file: %s \n\n' % (tool_name))
         lfile.write('Start time:\t%s \n' % (
             start_time.strftime("%H%M %Y-%m-%d")))
-        lfile.write('Parameters:\t%s \n\n' %
-                    (', '.join([str(item) for item in in_parameters[1:]])))
-
+        lfile.write('Parameters:\n')
+        for inpt, param in zip(cfg.inputs, in_parameters[1:]):
+            lfile.write("{} : {}\n".format(inpt, param))
+        lfile.write("\n")
     dashline()
     gprint('A record of run settings and messages can be found in your '
            'log directory:')

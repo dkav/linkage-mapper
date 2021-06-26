@@ -413,11 +413,34 @@ class Configure(object):
     TOOL_BM = 'Barrier mapper'
     TOOL_CS = 'Circuitscape'
 
+    LM_INPUTS = ["PROJECT DIR", "CORE LAYER", "CORE FIELD", "RESISTANCE LAYER",
+                 "STEP1", "STEP2", "S2ADJMETHOD", "S2EUCDISTFILE", "STEP3",
+                 "S3DROPLCCS", "STEP4", "S4MAXNN", "S4DISTTYPE", "S4CONNECT", "STEP5",
+                 "WRITETRUNCRASTER", "CWDTHRESH", "BUFFERDIST", "MAXCOSTDIST",
+                 "MAXEUCDIST", "OUTPUTFORMODELBUILDER", "LMCUSTSETTINGS"]
+    CC_INPUTS = ["PROJECT DIR", "CORE LAYER", "CORE FIELD", "CLIMATE LAYER",
+                 "RESISTANCE LAYER", "GRASS GIS FOLDER", "MINEUCDIST", "MAXEUCDIST",
+                 "CLIMATE THRESHOLD", "CLIMATE COST", "PRUNE NETWORK", "MAXNN",
+                 "NNMEASUREUNIT", "CONSTELLATION"]
+    LP_INPUTS = ["PROJECT DIR", "CORE LAYER", "CORE FIELD", "RESISTANCE LAYER", "OCAVRAST_IN",
+                 "RESWEIGHT", "SIZEWEIGHT", "APWEIGHT", "ECAVWEIGHT", "CFCWEIGHT", "OCAVWEIGHT",
+                 "COREPAIRSTABLE_IN", "FROMCOREFIELD", "TOCOREFIELD", "ECIVFIELD", "CCERAST_IN",
+                 "MODIFY_ACS_PARAMS", "FCERAST_IN", "CANALOG_MIN", "CANALOG_MAX", "CANALOG_MINRMAX",
+                 "CANALOG_TARGET", "CANALOG_PIORITY", "CANALOG_WEIGHT", "CPREF_VALUE", "CPREF_MIN",
+                 "CPREF_MAX", "CPREF_WEIGHT", "CLOSEWEIGHT", "PERMWEIGHT", "CAVWEIGHT", "ECIVWEIGHT",
+                 "CEDWEIGHT", "CPSNORM_CUTOFF", "TRUNCWEIGHT", "LPWEIGHT", "OUTPUTFORMODELBUILDER",
+                 "LPCUSTSETTINGS_IN", "CWDTHRESH"]
+    BM_INPUTS = ["PROJECT DIR", "RESISTANCE LAYER", "START RADIUS", "END RADIUS",
+                 "RADIUS STEP", "BARRIER METH", "SAVE RADIUS RASTERS", "WRITE PCT RASTERS"]
+    CS_INPUTS = ["PROJECT DIR", "CORE LAYER", "CORE FIELD", "CIRCUITSCAPE PATH", "CWDCUTOFF",
+                 "SQUARERESISTANCES", "DO_ADJACENTPAIRS", "DO_ALLPAIRS", "ALL_PAIR_SCENARIO"]
+
     def __init__(self):
         """Initialize class."""
         arcpy.CheckOutExtension("Spatial")
         arcpy.env.overwriteOutput = True
         self.TOOL = ''
+        self.inputs = False
 
     def configure(self, tool, arg):
         """Assign variables for Configure class."""
@@ -425,14 +448,19 @@ class Configure(object):
 
         if tool == Configure.TOOL_LM:
             config_lm(self, arg)
+            self.inputs = self.LM_INPUTS
         elif tool == Configure.TOOL_CC:
             config_climate(self, arg)
+            self.inputs = self.CC_INPUTS
         elif tool == Configure.TOOL_LP:
             config_lp(self, arg)
+            self.inputs = self.LP_INPUTS
         elif tool == Configure.TOOL_BM:
             config_barrier(self, arg)
+            self.inputs = self.BM_INPUTS
         elif tool == Configure.TOOL_CS:
             config_circuitscape(self, arg)
+            self.inputs = self.CS_INPUTS
         else:
             raise RuntimeError('Undefined tool to configure')
         self.TOOL = tool
