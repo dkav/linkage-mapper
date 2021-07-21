@@ -111,11 +111,8 @@ def config_global(config, arg):
     config.PINCHGDB = path.join(config.OUTPUTDIR, "pinchpoints.gdb")
     config.CORECENTRALITYGDB = path.join(config.OUTPUTDIR,
                                          "core_centrality.gdb")
-    config.BNDCIRCEN = path.join(config.SCRATCHDIR,
-                                 "boundingCircleCenter.shp")
     config.BNDCIRCENS = path.join(config.SCRATCHDIR,
                                   "boundingCircleCenters.shp")
-    config.BNDCIR = path.join(config.SCRATCHDIR, "boundingCircle.shp")
     config.BNDCIRS = path.join(config.SCRATCHDIR, "boundingCircles.shp")
     config.BNDFC = "boundingFeature.shp"
     config.BOUNDRESIS = path.join(config.SCRATCHDIR, "boundResis")

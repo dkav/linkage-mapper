@@ -53,39 +53,22 @@ def STEP1_get_adjacencies():
         gprint('Adjacency files will be written to ' +
                           cfg.ADJACENCYDIR)
 
-        # ------------------------------------------------------------------
-        # Create bounding circles to limit cwd and allocation calculations
-        if cfg.BUFFERDIST is not None:
-            gprint('Reducing processing area using bounding circle '
-                              'plus buffer of ' +
-                              str(float(cfg.BUFFERDIST)) + ' map units')
-
-            extentBoxList = npy.zeros((0, 5), dtype='float32')
-            boxCoords = lu.get_ext_box_coords(cfg.COREFC)
-            extentBoxList = npy.append(extentBoxList, boxCoords, axis=0)
-            extentBoxList[0, 0] = 0
-
-            # cwd bounding circle- used to clip raster to limit cwd
-            # calculations
-            boundingCirclePointArray = npy.zeros((0, 5), dtype='float32')
-            circlePointData = lu.get_bounding_circle_data(extentBoxList, 0, 0,
-                                                          cfg.BUFFERDIST)
-            lu.make_points(cfg.SCRATCHDIR, circlePointData,
-                           path.basename(cfg.BNDCIRCEN))
-
-            lu.delete_data(cfg.BNDCIR)
-            arcpy.Buffer_analysis(cfg.BNDCIRCEN, cfg.BNDCIR, "radius")
-
-            del boundingCirclePointArray
-
         arcpy.env.pyramid = "NONE"
         arcpy.env.rasterStatistics = "NONE"
         arcpy.env.workspace = cfg.SCRATCHDIR
 
+        if cfg.BUFFERDIST is not None:
+            gprint('Reducing processing area using bounding circle '
+                   'plus buffer of ' +
+                   str(float(cfg.BUFFERDIST)) + ' map units')
+            bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST)
+        else:
+            bnd_cir = None
+
         if cfg.S1ADJMETH_CW:
-            cwadjacency()
+            cwadjacency(bnd_cir)
         if cfg.S1ADJMETH_EU:
-            euadjacency()
+            euadjacency(bnd_cir)
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -101,7 +84,7 @@ def STEP1_get_adjacencies():
     return
 
 
-def cwadjacency():
+def cwadjacency(bnd_cir=None):
     """Calculate cost-weighted adjacency."""
     try:
         ALLOC_RASFN = "CWD_alloc_ras"
@@ -117,12 +100,12 @@ def cwadjacency():
         # Cost-weighted allocation code
         arcpy.env.cellSize = arcpy.Describe(cfg.RESRAST).MeanCellHeight
         arcpy.env.extent = arcpy.Describe(cfg.RESRAST).extent
-        if cfg.BUFFERDIST is not None:
+        if bnd_cir is not None:
             # Clip resistance raster using bounding circle
             start_time = perf_counter()
             arcpy.env.cellSize = arcpy.Describe(cfg.RESRAST).MeanCellHeight
             arcpy.env.extent = arcpy.Describe(cfg.RESRAST).Extent
-            bResistance = arcpy.sa.ExtractByMask(cfg.RESRAST, cfg.BNDCIR)
+            bResistance = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
             gprint('\nReduced resistance raster extracted using '
                               'bounding circle.')
             start_time = lu.elapsed_time(start_time)
@@ -174,7 +157,7 @@ def cwadjacency():
         lu.exit_with_python_error(_SCRIPT_NAME)
 
 
-def euadjacency():
+def euadjacency(bnd_cir=None):
     """Calculate Euclidean adjacency."""
     try:
         ALLOC_RASFN = "Euc_alloc_ras"
@@ -185,14 +168,13 @@ def euadjacency():
 
         # ----------------------------------------------
         # Euclidean allocation code
-        arcpy.env.workspace = cfg.ADJACENCYDIR
         gprint('Starting Euclidean adjacency processing...')
         # Euclidean cell size
         cellSizeEuclidean = arcpy.Describe(cfg.RESRAST).MeanCellHeight
 
         oldextent = arcpy.env.extent
-        if cfg.BUFFERDIST is not None:
-            arcpy.env.extent = arcpy.Describe(cfg.BNDCIR).extent
+        if bnd_cir is not None:
+            arcpy.env.extent = arcpy.Describe(bnd_cir).extent
 
         start_time = perf_counter()
 

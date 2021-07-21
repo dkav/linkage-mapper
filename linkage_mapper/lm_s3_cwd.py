@@ -210,8 +210,7 @@ def STEP3_calc_cwds():
                               'analysis.')
 
             dir, BNDCIRCENS = path.split(cfg.BNDCIRCENS)
-            lu.make_points(cfg.SCRATCHDIR, boundingCirclePointArray,
-                           BNDCIRCENS)
+            lu.make_points(boundingCirclePointArray, BNDCIRCENS)
             lu.delete_data(cfg.BNDCIRS)
             arcpy.Buffer_analysis(cfg.BNDCIRCENS, cfg.BNDCIRS, "radius")
             arcpy.DeleteField_management(cfg.BNDCIRS, "BUFF_DIST")
@@ -224,27 +223,11 @@ def STEP3_calc_cwds():
             gprint('Reducing global processing area using bounding '
                               'circle plus buffer of ' +
                               str(float(cfg.BUFFERDIST)) + ' map units.\n')
-
-
-            # NOTE - Duplicate code in s1
-            extentBoxList = npy.zeros((0,5),dtype='float32')
-            boxCoords = lu.get_ext_box_coords(cfg.COREFC)
-            extentBoxList = npy.append(extentBoxList,boxCoords,axis=0)
-            extentBoxList[0,0] = 0
-
-            boundingCirclePointArray  = npy.zeros((0,5),dtype='float32')
-            circlePointData=lu.get_bounding_circle_data(extentBoxList, 0,
-                                                        0, cfg.BUFFERDIST)
-
-            dir, BNDCIRCEN = path.split(cfg.BNDCIRCEN)
-            lu.make_points(cfg.SCRATCHDIR, circlePointData, BNDCIRCEN)
-            lu.delete_data(cfg.BNDCIR)
-            arcpy.Buffer_analysis(cfg.BNDCIRCEN, cfg.BNDCIR, "radius")
-
+            bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST)
             gprint('Extracting raster....')
             cfg.BOUNDRESIS = cfg.BOUNDRESIS + tif
             lu.delete_data(cfg.BOUNDRESIS)
-            bound_resis = arcpy.sa.ExtractByMask(cfg.RESRAST, cfg.BNDCIR)
+            bound_resis = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
             bound_resis.save(cfg.BOUNDRESIS)
             gprint('\nReduced resistance raster extracted using '
                               'bounding circle.')

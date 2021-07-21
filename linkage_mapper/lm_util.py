@@ -501,12 +501,33 @@ def get_sel_ext_box_coords(feature, field_name, field_val):
     return get_box_data(field_val, extent)
 
 
+def create_bnd_circle(box_fc, buff_dist):
+    """Create bounding circles."""
+    bnd_cir_cent = 'bnd_cir_cent.shp'
+    bnd_cir = 'bnd_circle.shp'
+
+    ext_box_lst = npy.zeros((0, 5), dtype='float32')
+    box_coords = get_ext_box_coords(box_fc)
+    ext_box_lst = npy.append(ext_box_lst, box_coords, axis=0)
+    ext_box_lst[0, 0] = 0
+
+    cir_pnt_data = get_bounding_circle_data(
+        ext_box_lst, 0, 0, buff_dist)
+    make_points(cir_pnt_data, bnd_cir_cent)
+
+    arcpy.Buffer_analysis(bnd_cir_cent, bnd_cir, "radius")
+
+    delete_data(bnd_cir_cent)
+
+    return bnd_cir
+
+
 def get_ext_box_coords(feature):
     """Get coordinates of bounding box that contains all features."""
     return get_box_data(1, arcpy.Describe(feature).extent)
 
 
-def make_points(workspace, pointArray, outFC):
+def make_points(pointArray, outFC):
     """Creates a shapefile with points specified by coordinates in pointArray
 
        outFC is just the filename, not path.
@@ -514,10 +535,9 @@ def make_points(workspace, pointArray, outFC):
 
     """
     try:
-        wkspbefore = arcpy.env.workspace
-        arcpy.env.workspace = workspace
         delete_data(outFC)
-        arcpy.CreateFeatureclass_management(workspace, outFC, "POINT")
+        arcpy.CreateFeatureclass_management(
+            arcpy.env.workspace, outFC, "POINT")
         if pointArray.shape[1] > 3:
             arcpy.AddField_management(outFC, "corex", "LONG")
             arcpy.AddField_management(outFC, "corey", "LONG")
@@ -553,7 +573,6 @@ def make_points(workspace, pointArray, outFC):
             del row
             del point
         del rows
-        arcpy.env.workspace = wkspbefore
 
     except arcpy.ExecuteError:
         exit_with_geoproc_error(_SCRIPT_NAME)
@@ -1247,7 +1266,7 @@ def write_link_maps(linkTableFile, step):
         # Preferred method to get geometric center
         pointArray = get_centroids(cfg.COREFC, cfg.COREFN)
 
-        make_points(arcpy.env.workspace, pointArray, coresForLinework)
+        make_points(pointArray, coresForLinework)
 
         coreLinks = linktable
 
