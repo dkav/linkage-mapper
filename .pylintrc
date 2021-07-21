@@ -1,2 +1,3 @@
 [TYPECHECK]
+ignored-modules=arcpy
 ignored-classes=Configure
