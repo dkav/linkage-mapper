@@ -62,7 +62,7 @@ def run_lm():
         lu.create_dir(cfg.SCRATCHDIR)
         lu.create_dir(cfg.ARCSCRATCHDIR)
 
-        lu.print_drive_warning()
+        lu.chk_decimal_char()
 
         if cfg.CONNECTFRAGS:
             lu.dashline(1)

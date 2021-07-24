@@ -53,7 +53,8 @@ def circuitscape_master(argv=None):
             lu.raise_error("Cannot find an installation of Circuitscape"
                            "\nin your Program Files directory.")
 
-        lu.print_drive_warning()
+        lu.chk_decimal_char()
+
         # Check core ID field.
         lu.check_cores(cfg.COREFC, cfg.COREFN)
 

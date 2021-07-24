@@ -1851,29 +1851,19 @@ def rename_fields(FC):
     except Exception:
         exit_with_python_error(_SCRIPT_NAME)
 
+
 ############################################################################
-##Error Checking and Handling Functions ####################################
+# Error Checking and Handling Functions ####################################
 ############################################################################
-def print_drive_warning():
-    gprint('\n********************************************************')
-    drive, depth, realpath = get_dir_depth(cfg.PROJECTDIR)
-    if drive.lower() != 'c' or depth > 3 or 'dropbox' in realpath.lower():
-        gprint('NOTE: ArcGIS errors are more likely when writing to remote '
-            'drives or deep file structures. We recommend shallow '
-            'project directories on local drives, like C:\puma. '
-            'Errors may also result from conflicts with anti-virus '
-            'software (known problems with AVG). We have also seen '
-            'conflicts when writing to synchronized folders like DROPBOX.\n\n'
-            'Note also that Linkage Mapper tools often work best when run '
-            'from ArcCatalog instead of ArcMap. \n ')
-    else:
-        gprint('NOTE: Linkage Mapper tools often work best when run  '
-            'from ArcCatalog instead of ArcMap. \n')
+def chk_decimal_char():
+    """Check that decimal character is a dot."""
     localdict = locale.localeconv()
     if localdict['decimal_point'] != '.':
-        msg = ('ERROR: It looks like decimals are indicated by commas instead of decimal points.\n'
-            'Try changing your Windows Regional and Language settings to English (United States)\n'
-            'or another convention that uses decimal points.\n')
+        msg = ('ERROR: It looks like decimals are indicated by commas instead '
+               'of decimal points.\n'
+               'Try changing your Windows Regional and Language settings to '
+               'English (United States)\n'
+               'or another convention that uses decimal points.\n')
         raise_error(msg)
 
 
@@ -1968,7 +1958,6 @@ def exit_with_geoproc_error(filename):
     arcpy.AddError(arcpy.GetMessages(2))
     write_log(msg)
     dashline()
-    print_drive_warning()
     close_log_file()
     exit(1)
 

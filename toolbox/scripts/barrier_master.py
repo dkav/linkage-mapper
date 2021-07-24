@@ -35,7 +35,7 @@ def bar_master(argv=None):
         cfg.logFilePath = lu.create_log_file(cfg.PARAM_NAMES, argv)
         lu.log_metadata(rasters=[cfg.RESRAST_IN])
 
-        lu.print_drive_warning()
+        lu.chk_decimal_char()
 
         # Move adj and cwd results from earlier versions to datapass directory
         lu.move_old_results()
