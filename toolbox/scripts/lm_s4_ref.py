@@ -24,7 +24,7 @@ import arcpy
 from lm_config import tool_env as cfg
 import lm_util as lu
 
-_SCRIPT_NAME = "s4_refineNetwork.py"
+_SCRIPT_NAME = "lm_s4_ref.py"
 
 gprint = lu.gprint
 

@@ -20,7 +20,7 @@ from lm_config import tool_env as cfg
 import lm_util as lu
 
 
-_SCRIPT_NAME = "s1_getAdjacencies.py"
+_SCRIPT_NAME = "lm_s1_adj.py"
 
 gprint = lu.gprint
 

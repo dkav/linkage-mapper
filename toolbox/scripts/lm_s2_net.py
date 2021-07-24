@@ -20,7 +20,7 @@ from lm_config import tool_env as cfg
 import lm_util as lu
 
 
-_SCRIPT_NAME = "s2_buildNetwork.py"
+_SCRIPT_NAME = "lm_s2_net.py"
 
 gprint = lu.gprint
 
@@ -36,14 +36,14 @@ def STEP2_build_network():
         outlinkTableFile = lu.get_this_step_link_table(step=2)
 
         # ------------------------------------------------------------------
-        # adjacency file created from s1_getAdjacencies.py
+        # adjacency file created from lm_s1_adj.py
         if cfg.S2ADJMETH_EU and not path.exists(cfg.EUCADJFILE):
             msg = ('\nERROR: Euclidean adjacency file required from '
                   'Step 1: ' + cfg.EUCADJFILE)
             lu.raise_error(msg)
 
         # ------------------------------------------------------------------
-        # adjacency file created from s1_getAdjacencies.py
+        # adjacency file created from lm_s1_adj.py
         if cfg.S2ADJMETH_CW and not path.exists(cfg.CWDADJFILE):
             msg = ('\nERROR: Cost-weighted adjacency file required from'
                               'Step 1: ' + cfg.CWDADJFILE)
@@ -178,7 +178,7 @@ def STEP2_build_network():
         linkTable[:, cfg.LTB_CLUST2] = -1
 
         # not evaluated yet. May eventually have ability to get lcdistances
-        # for adjacent cores from s1_getAdjacencies.py
+        # for adjacent cores from lm_s1_adj.py
         linkTable[:, cfg.LTB_CWDIST] = -1
 
         # Get list of core IDs, based on core area shapefile.

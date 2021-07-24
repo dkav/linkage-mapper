@@ -12,11 +12,11 @@ import arcpy
 
 from lm_config import tool_env as cfg
 import lm_util as lu
-import s1_getAdjacencies as s1
-import s2_buildNetwork as s2
-import s3_calcCwds as s3
-import s4_refineNetwork as s4
-import s5_calcLccs as s5
+import lm_s1_adj as s1
+import lm_s2_net as s2
+import lm_s3_cwd as s3
+import lm_s4_ref as s4
+import lm_s5_lcc as s5
 
 _SCRIPT_NAME = "lm_master.py"
 #__version__ = "$Revision$"

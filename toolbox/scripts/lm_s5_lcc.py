@@ -20,7 +20,7 @@ import arcpy
 from lm_config import tool_env as cfg
 import lm_util as lu
 
-_SCRIPT_NAME = "s5_calcLccs.py"
+_SCRIPT_NAME = "lm_s5_lcc.py"
 
 gprint = lu.gprint
 

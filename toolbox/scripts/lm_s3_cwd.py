@@ -21,7 +21,7 @@ import arcpy
 from lm_config import tool_env as cfg
 import lm_util as lu
 
-_SCRIPT_NAME = "s3_calcCwds.py"
+_SCRIPT_NAME = "lm_s3_cwd.py"
 
 tif = ''
 

@@ -1,5 +1,5 @@
 """Maps pinch points using Circuitscape given CWD calculations from
-       s3_calcCwds.py.
+       lm_s3_cwd.py.
 Reguired Software:
 ArcGIS Desktop 10.3+ or ArcGIS Pro with Spatial Analyst extension
 Numpy
