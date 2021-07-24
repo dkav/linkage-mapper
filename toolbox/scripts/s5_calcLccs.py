@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Step 5: Calculate least cost corridors.
 
 Creates and mosaics normalized least-cost corridors using connected core area

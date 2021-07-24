@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Step 2: Build network.
 
 Generates initial version of linkTable.csv based on euclidean distances and

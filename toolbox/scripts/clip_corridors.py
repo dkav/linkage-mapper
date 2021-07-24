@@ -1,5 +1,3 @@
-# Author: Brad McRae
-
 from os import path
 import sys
 

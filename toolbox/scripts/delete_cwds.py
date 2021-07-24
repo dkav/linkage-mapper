@@ -1,5 +1,3 @@
-# Author: Brad McRae
-
 import os
 import sys
 import shutil

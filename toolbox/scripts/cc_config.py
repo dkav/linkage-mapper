@@ -1,5 +1,3 @@
-# Authors: Darren Kavanagh and Brad McRae
-
 """Create instance of config object to store input parameters and settings.
 
 Classes:

@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Step 4: Refine network.
 
 Allows user to only connect each core area to its N nearest neighbors, then

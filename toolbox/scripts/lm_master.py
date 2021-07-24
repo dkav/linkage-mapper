@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Master script for Linkage Lapper.
 
 Reguired Software:

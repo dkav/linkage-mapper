@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Linkage Mapper configuration module.
 
 Assigns input parameters from ToolBox to variables, and sets constants.

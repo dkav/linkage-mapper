@@ -1,5 +1,3 @@
-# Author: Brad McRae
-
 """Maps pinch points using Circuitscape given CWD calculations from
        s3_calcCwds.py.
 Reguired Software:

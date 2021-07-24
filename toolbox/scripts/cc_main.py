@@ -1,5 +1,3 @@
-# Authors: Darren Kavanagh and Brad McRae
-
 """Create linkages between core areas that fall along a climatic gradient.
 
 This tool is designed to create linkages between designated core areas that

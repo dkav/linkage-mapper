@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Step 3: Calculate cost-weighted distances.
 
 Calculates cost-weighted distances from each core area.

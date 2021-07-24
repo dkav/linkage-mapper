@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """Contains functions called by linkage mapper and barrier mapper scripts."""
 
 import os

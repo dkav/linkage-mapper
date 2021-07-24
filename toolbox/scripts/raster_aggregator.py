@@ -1,5 +1,5 @@
 """Aggregates resistance rasters to coarser cell size using average resistance.
-    Written by Brad McRae
+
 Reguired Software:
 ArcGIS Desktop 10.3+ or ArcGIS Pro with Spatial Analyst extension
 

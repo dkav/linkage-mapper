@@ -1,5 +1,3 @@
-# Author: Darren Kavanagh
-
 """Functions for Climate Linkage Mapper module."""
 
 import os

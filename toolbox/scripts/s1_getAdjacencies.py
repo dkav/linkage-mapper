@@ -1,5 +1,3 @@
-# Authors: Brad McRae and Darren Kavanagh
-
 """ Step 1: Get adjacencies.
 
 Determines adjacencies between core areas in either or both Euclidean and

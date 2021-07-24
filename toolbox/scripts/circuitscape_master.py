@@ -1,5 +1,3 @@
-# Author: Brad McRae
-
 """Master script for circuitscape analysis in linkage mapper.
 
 Reguired Software:

@@ -1,6 +1,4 @@
 """Linkage Priority user-configurable settings."""
-# Authors: John Gallo and Randal Greene 2017
-
 # Calculate Corridor Specific Value (CSP) or CSP & Blended Priority (BP)
 CALCCSPBP = 2  # No_Calc=0, CSP=1, CSP_BP=2
 

@@ -1,5 +1,3 @@
-# Authors: Darren Kavanagh and Brad McRae
-
 """Create CWD and Back rasters using GRASS GIS r.walk function."""
 
 import os

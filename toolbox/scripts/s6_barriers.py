@@ -1,5 +1,3 @@
-# Author: Brad McRae
-
 """Detect influential barriers given CWD calculations from Step 3.
 
 Reguired Software:
