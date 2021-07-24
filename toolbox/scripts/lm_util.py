@@ -1868,7 +1868,6 @@ def chk_decimal_char():
 
 
 def get_dir_depth(dir):
-    import string
     realpath = os.path.normpath(dir)
     drive = realpath[0]
     depth = 0
