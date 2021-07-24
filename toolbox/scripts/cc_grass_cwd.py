@@ -15,6 +15,13 @@ from lm_config import tool_env as lm_env
 import lm_util
 
 
+# STARTUPINFO class that provides settings to hide console windows
+# (keyword arguments cannot be used in Python 2)
+STINFO = subprocess.STARTUPINFO()
+STINFO.dwFlags = subprocess.STARTF_USESHOWWINDOW
+STINFO.wShowWindow = subprocess.SW_HIDE
+
+
 def grass_cwd(core_list):
     """Create CWD and Back rasters using GRASS."""
     out_fldr = cc_env.scratch_dir
@@ -190,6 +197,7 @@ def start_grass_cmd(*args, **kwargs):
 
     kwargs['stdout'] = grass.PIPE
     kwargs['stderr'] = grass.PIPE
+    kwargs['startupinfo'] = STINFO
     return grass.start_command(*args, **kwargs)
 
 
