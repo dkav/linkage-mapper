@@ -1,3 +1,3 @@
 [TYPECHECK]
-ignored-modules=arcpy
+ignored-modules=arcpy,grass
 ignored-classes=Configure
