@@ -95,8 +95,6 @@ def config_lm():
     lm_env.configure(lm_env.TOOL_CC, lm_arg)
     lm_util.create_dir(lm_env.DATAPASSDIR)
     lm_util.gprint('\nClimate Linkage Mapper Version ' + lm_env.releaseNum)
-    lm_util.gprint('NOTE: This tool runs best with BACKGROUND '
-                   'PROCESSING (see user guide).')
 
 
 def log_setup(param_values):
