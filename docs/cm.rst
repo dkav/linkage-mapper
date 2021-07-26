@@ -1,4 +1,8 @@
-**Linkage Mapper Toolbox:**
+.. _cm:
+
+***********************
+Centrality Mapper
+***********************
 
 **Centrality Mapper User Guide**
 

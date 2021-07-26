@@ -1,3 +1,9 @@
+.. _lp-dev:
+
+****************************************
+Linkage Priority Developer Documentation
+****************************************
+
 **Linkage Priority Developer Documentation**
 
 *Version 3.0—Updated October 2020*

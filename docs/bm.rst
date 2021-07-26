@@ -1,4 +1,8 @@
-**Linkage Mapper Toolbox:**
+.. _bm:
+
+***********************
+Barrier Mapper
+***********************
 
 **Barrier Mapper User Guide**
 

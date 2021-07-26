@@ -4,11 +4,6 @@
 # ArcGIS
 *.lock
 
-# Word temporary
-~$*.doc*
-
-# LM build
-*.pdf
 
 # Docs
 /docs/_build

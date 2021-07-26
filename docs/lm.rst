@@ -1,4 +1,8 @@
-**Linkage Mapper Toolbox:**
+.. _lm:
+
+***********************
+Linkage Mapper
+***********************
 
 **Linkage Pathways Tool User Guide**
 

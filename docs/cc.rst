@@ -1,11 +1,13 @@
+.. _cc:
+
+***********************
+Climate Linkage Mapper
+***********************
+
 .. image:: cc/image1.tiff
    :alt: TIFF Climate_Report_Figure_3 2011JULY03.tif
    :width: 2.16667in
    :height: 2.19157in
-
-Climate Linkage Mapper User Guide
-
-**Linkage Mapper Toolbox:**
 
 **Climate Linkage Mapper User Guide**
 

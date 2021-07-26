@@ -1,4 +1,8 @@
-**Linkage Mapper Toolbox:**
+.. _pp:
+
+***********************
+Pinchpoint Mapper
+***********************
 
 **Pinchpoint Mapper User Guide**
 

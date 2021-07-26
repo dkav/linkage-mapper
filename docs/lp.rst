@@ -1,8 +1,12 @@
+.. _lp:
+
+***********************
+Linkage Priority
+***********************
+
 .. image:: lp/image1.png
    :width: 6.50556in
    :height: 4.93542in
-
-**Linkage Mapper Toolbox:**
 
 **Linkage Priority User Guide and Tutorial**
 
