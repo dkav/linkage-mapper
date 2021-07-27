@@ -62,19 +62,14 @@ def config_global(config, arg):
     config.EUCADJFILE = path.join(config.DATAPASSDIR, "eucAdj.csv")
     config.OUTPUTDIR = path.join(proj_dir, "output")
     config.LOGDIR = path.join(proj_dir, "run_history")
-    config.LOGDIR_OLD = path.join(proj_dir, "logFiles")
     config.logFile = None
     config.logFilePath = None
     config.logFileCopyPath = path.join(proj_dir, 'last_run_log.txt')
     config.MESSAGEDIR = path.join(config.LOGDIR, "log")
-    config.MESSAGEDIR_OLD = path.join(config.LOGDIR, "Messages")
     config.ADJACENCYDIR = path.join(config.DATAPASSDIR, "adj")
-    config.ADJACENCYDIR_OLD = path.join(proj_dir, "adj")
     config.CWDBASEDIR = path.join(config.DATAPASSDIR, "cwd")
-    config.CWDBASEDIR_OLD = path.join(proj_dir, "cwd")
     config.CWDSUBDIR_NM = "cw"
     config.LCCBASEDIR = path.join(config.DATAPASSDIR, "nlcc")
-    config.LCCBASEDIR_OLD = path.join(proj_dir, "nlcc")
     config.LCCNLCDIR_NM = "nlc"
     config.LCCMOSAICDIR = path.join(config.LCCBASEDIR, "mosaic")
     config.MOSAICGDB = path.join(config.LCCMOSAICDIR, "mosaic.gdb")
@@ -103,7 +98,6 @@ def config_global(config, arg):
 
     config.OUTPUTGDB = path.join(config.OUTPUTDIR, "corridors.gdb")
     config.EXTRAGDB = path.join(config.OUTPUTDIR, "extra.gdb")
-    config.OUTPUTGDB_OLD = path.join(config.OUTPUTDIR, "linkages.gdb")
     config.CWDGDB = path.join(config.OUTPUTDIR, "cwd.gdb")
     config.LINKMAPGDB = path.join(config.OUTPUTDIR, "link_maps.gdb")
     config.LOGLINKMAPGDB = path.join(config.LOGDIR, "link_maps.gdb")

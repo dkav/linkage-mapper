@@ -37,9 +37,6 @@ def bar_master(argv=None):
 
         lu.chk_decimal_char()
 
-        # Move adj and cwd results from earlier versions to datapass directory
-        lu.move_old_results()
-
         lu.create_dir(cfg.OUTPUTDIR)
         lu.delete_dir(cfg.SCRATCHDIR)
         lu.create_dir(cfg.SCRATCHDIR)

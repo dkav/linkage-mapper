@@ -63,9 +63,6 @@ def circuitscape_master(argv=None):
         arcpy.env.pyramid = "NONE"
         arcpy.env.rasterStatistics = "NONE"
 
-        # Move adj and cwd results from earlier versions to datapass directory
-        lu.move_old_results()
-
         if cfg.CWDCUTOFF > 0:
             lu.delete_dir(cfg.SCRATCHDIR)
 

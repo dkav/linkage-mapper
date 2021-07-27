@@ -49,8 +49,6 @@ def run_lm():
     """Run Linkage Mapper."""
     try:
         gprint = lu.gprint
-        # Move results from earlier versions to new directory structure
-        lu.move_old_results()
         arcpy.env.pyramid = "NONE"
         arcpy.env.rasterStatistics = "NONE"
 
@@ -144,7 +142,6 @@ def run_lm():
                 lu.delete_dir(finalgdb)
 
         # Delete final output geodatabase
-        delete_final_gdb(cfg.OUTPUTGDB_OLD)
         delete_final_gdb(cfg.OUTPUTGDB)
         delete_final_gdb(cfg.EXTRAGDB)
         delete_final_gdb(cfg.LINKMAPGDB)

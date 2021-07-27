@@ -1448,43 +1448,6 @@ def create_dir(lmfolder):
                                        os.path.basename(lmfolder))
 
 
-def move_old_results():
-    """Updates project directory structure to new version.
-
-    """
-    try:
-        oldFolder = cfg.CWDBASEDIR_OLD
-        newFolder = cfg.CWDBASEDIR
-        move_results_folder(oldFolder, newFolder)
-
-        oldFolder = cfg.ADJACENCYDIR_OLD
-        newFolder = cfg.ADJACENCYDIR
-        move_results_folder(oldFolder, newFolder)
-
-        oldFolder = cfg.LCCBASEDIR_OLD
-        newFolder = cfg.LCCBASEDIR
-        move_results_folder(oldFolder, newFolder)
-
-        oldFolder = cfg.LOGDIR_OLD
-        newFolder = cfg.LOGDIR
-        move_results_folder(oldFolder, newFolder)
-
-        oldFolder = cfg.MESSAGEDIR_OLD
-        newFolder = cfg.MESSAGEDIR
-        move_results_folder(oldFolder, newFolder)
-
-    except Exception:
-        exit_with_python_error(_SCRIPT_NAME)
-
-
-def move_results_folder(old_folder, new_folder):
-    if os.path.exists(old_folder) and not os.path.exists(new_folder):
-        try:
-            os.rename(old_folder, new_folder)
-        except OSError:
-            exit_with_python_error(_SCRIPT_NAME)
-
-
 def delete_file(filename):
     """Delete file from disk."""
     if os.path.exists(filename):
