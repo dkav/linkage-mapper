@@ -100,7 +100,7 @@ def STEP2_build_network():
 
         # Begin creating and manipulating linktables
         # zeros and many other array functions are imported from numpy
-        linkTable = npy.zeros((len(eucDists), 10), dtype='int32')
+        linkTable = npy.zeros((len(eucDists), 10), dtype='Float64')
         linkTable[:, 1:3] = eucDists[:, 0:2]
         linkTable[:, cfg.LTB_EUCDIST] = eucDists[:, 2]
 
@@ -135,8 +135,8 @@ def STEP2_build_network():
         linkTable[:, cfg.LTB_EUCADJ] = -1
         if cfg.S2ADJMETH_CW or cfg.S2ADJMETH_EU:
             for x in range(0, linkTable.shape[0]):
-                listEntry = (str(linkTable[x, cfg.LTB_CORE1]) + '_' +
-                             str(linkTable[x, cfg.LTB_CORE2]))
+                listEntry = (str(int(linkTable[x, cfg.LTB_CORE1])) + '_' +
+                             str(int(linkTable[x, cfg.LTB_CORE2])))
                 if listEntry in cwdAdjList:
                     linkTable[x, cfg.LTB_CWDADJ] = 1
                 else:

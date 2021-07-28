@@ -1007,10 +1007,29 @@ def write_link_table(linktable, outlinkTableFile, *inLinkTableFile):
     """Writes link tables to pass link data between steps """
     try:
 
+        flds = ("link", "coreId1", "coreId2", "cluster1", "cluster2",
+                "linkType", "eucDist", "lcDist", "eucAdj", "cwdAdj",
+                "lcpLength", "cwdToEucRatio", "cwdToPathRatio", "Eff_Resist",
+                "CWDTORRatio", "CF_Centrality")
+
         numLinks = linktable.shape[0]
-        outFile = open(outlinkTableFile, "w")
+        up_idx = linktable.shape[1] - 1
+
+        def write_ln(lst):
+            f.write("#{}\n".format(','.join(flds[:no_flds-1]))
+
+        with open(outlinkTableFile, 'w') as f:
+            f.write("#{}\n".format(','.join(flds[:no_flds-1]))
+            for x in range(0, numLinks):
+                f.write(
+                for y in range(0, up_idx):
+                    outFile.write(str(linktable[x, y]) + ",")
+                outFile.write(str(linktable[x, up_idx]))
+                outFile.write("\n")
 
         if linktable.shape[1] == 10:
+            write_links(10)
+
             outFile.write("# link,coreId1,coreId2,cluster1,cluster2,linkType,"
                            "eucDist,lcDist,eucAdj,cwdAdj\n")
 
@@ -1028,6 +1047,7 @@ def write_link_table(linktable, outlinkTableFile, *inLinkTableFile):
             for x in range(0, numLinks):
                 for y in range(0, 12):
                     outFile.write(str(linktable[x, y]) + ",")
+
                 outFile.write(str(linktable[x, 12]))
                 outFile.write("\n")
         else: #Called from pinch point or centrality tool, has 16 columns
@@ -1047,29 +1067,21 @@ def write_link_table(linktable, outlinkTableFile, *inLinkTableFile):
         outFile.write("\n# ---Run Settings---")
         outFile.write("\n# Project Directory: " + cfg.PROJECTDIR)
         if cfg.TOOL == cfg.TOOL_LM:
-            outFile.write("\n# Core Area Feature Class: " + cfg.COREFC)
+            x = """"
+            # Core Area Feature Class: """ + cfg.COREFC + """
+            # Core Area Field Name: " + cfg.COREFN
+            # Resistance Raster: " + cfg.RESRAST_IN
+            # Step 1 - Identify Adjacent Core Areas: " + str(cfg.STEP1)
+            # Step 1 Adjacency Method Includes Cost-Weighted Distance: " + str(cfg.S1ADJMETH_CW)
+            # Step 1 Adjacency Method Includes Euclidean Distance: " + str(cfg.S1ADJMETH_EU)
+            # Step 2 - Construct a Network of Core Areas: " + str(cfg.STEP2)
+            # Conefor Distances Text File: " + str(cfg.S2EUCDISTFILE)
+            # Network Adjacency Method Includes Cost-Weighted Distance: " + str(cfg.S2ADJMETH_CW))
+            # Network Adjacency Method Includes Euclidean Distance: " + str(cfg.S2ADJMETH_EU))
+            # Step 3 - Calculate Cost-Weighted Distances and Least-Cost Paths: " + str(cfg.STEP3))
+            # Drop Corridors that Intersect Core Areas: " + str(cfg.S3DROPLCCS))
+            # Step 4 - Refine Network: " + str(cfg.STEP4))
 
-            outFile.write("\n# Core Area Field Name: " + cfg.COREFN)
-            outFile.write("\n# Resistance Raster: " + cfg.RESRAST_IN)
-            outFile.write("\n# Step 1 - Identify Adjacent Core Areas: " +
-                           str(cfg.STEP1))
-            outFile.write("\n# Step 1 Adjacency Method Includes Cost-Weighted "
-                           "Distance: " + str(cfg.S1ADJMETH_CW))
-            outFile.write("\n# Step 1 Adjacency Method Includes Euclidean "
-                           "Distance: " + str(cfg.S1ADJMETH_EU))
-            outFile.write("\n# Step 2 - Construct a Network of Core Areas: " +
-                           str(cfg.STEP2))
-            outFile.write("\n# Conefor Distances Text File: " +
-                          str(cfg.S2EUCDISTFILE))
-            outFile.write("\n# Network Adjacency Method Includes Cost-Weighted "
-                           "Distance: " + str(cfg.S2ADJMETH_CW))
-            outFile.write("\n# Network Adjacency Method Includes Euclidean "
-                           "Distance: " + str(cfg.S2ADJMETH_EU))
-            outFile.write("\n# Step 3 - Calculate Cost-Weighted Distances and "
-                           "Least-Cost Paths: " + str(cfg.STEP3))
-            outFile.write("\n# Drop Corridors that Intersect Core Areas: "
-                           + str(cfg.S3DROPLCCS))
-            outFile.write("\n# Step 4 - Refine Network: " + str(cfg.STEP4))
             if cfg.IGNORES4MAXNN:
                 outFile.write("\n# Option A - Number of Connected Nearest Neighbors: Unlimimted")
             else:
