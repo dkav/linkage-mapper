@@ -66,14 +66,6 @@ def STEP3_calc_cwds():
         gprint('Running script ' + _SCRIPT_NAME)
         lu.dashline(0)
 
-        if (cfg.BUFFERDIST) is not None:
-            gprint('Bounding circles plus a buffer of ' +
-                              str(float(cfg.BUFFERDIST)) + ' map units will '
-                              'be used \n to limit extent of cost distance '
-                              'calculations.')
-        elif cfg.TOOL != cfg.TOOL_CC:
-            gprint('NOT using bounding circles in cost distance '
-                              'calculations.')
 
         # set the analysis extent and cell size
         # So we don't extract rasters that go beyond extent of original raster
@@ -147,10 +139,16 @@ def STEP3_calc_cwds():
         linkTable,numDroppedLinks = lu.drop_links(linkTable, cfg.MAXEUCDIST, 0,
                                                   cfg.MAXCOSTDIST, 0,
                                                   DISABLE_LEAST_COST_NO_VAL)
+
         # ------------------------------------------------------------------
-        # Bounding boxes
-        if (cfg.BUFFERDIST) is not None:
-            # create bounding boxes around cores
+        if cfg.BUFFERDIST is not None:
+            gprint('Bounding circles plus a buffer of ' +
+                   str(float(cfg.BUFFERDIST)) + ' map units will '
+                   'be used \n to limit extent of cost distance '
+                   'calculations.')
+
+            # Create bounding boxes around cores
+            # ----------------------------------
             start_time = perf_counter()
             gprint('Calculating bounding boxes for core areas.')
             extentBoxList = npy.zeros((0,5), dtype='float32')
@@ -162,9 +160,8 @@ def STEP3_calc_cwds():
             gprint('\nDone calculating bounding boxes.')
             start_time = lu.elapsed_time(start_time)
 
-        # Bounding circle code
-        if cfg.BUFFERDIST is not None:
-            # Make a set of circles encompassing core areas we'll be connecting
+            # Create bounding circles
+            # -----------------------
             start_time = perf_counter()
             gprint('Calculating bounding circles around potential'
                           ' corridors.')
@@ -229,7 +226,11 @@ def STEP3_calc_cwds():
             gprint('\nReduced resistance raster extracted using '
                               'bounding circle.')
 
-        else: #if not using bounding circles, just go with resistance raster.
+        else:
+            if cfg.TOOL != cfg.TOOL_CC:
+                gprint('NOT using bounding circles in cost distance '
+                       'calculations.')
+            # If not using bounding circles, just go with resistance raster
             bound_resis = cfg.RESRAST
 
         # ---------------------------------------------------------------------
