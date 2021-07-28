@@ -105,11 +105,6 @@ def config_global(config, arg):
     config.PINCHGDB = path.join(config.OUTPUTDIR, "pinchpoints.gdb")
     config.CORECENTRALITYGDB = path.join(config.OUTPUTDIR,
                                          "core_centrality.gdb")
-    config.BNDCIRCENS = path.join(config.SCRATCHDIR,
-                                  "boundingCircleCenters.shp")
-    config.BNDCIRS = path.join(config.SCRATCHDIR, "boundingCircles.shp")
-    config.BNDFC = "boundingFeature.shp"
-    config.BOUNDRESIS = path.join(config.SCRATCHDIR, "boundResis")
 
     # Link table column numbers
     config.LTB_LINKID = 0  # Link ID

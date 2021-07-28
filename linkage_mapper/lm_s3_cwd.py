@@ -25,6 +25,11 @@ _SCRIPT_NAME = "lm_s3_cwd.py"
 
 gprint = lu.gprint
 
+BNDCIRS = "boundingCircles.shp"
+BNDCIRCENS = "boundingCircleCenters.shp"
+BOUNDRESIS = "boundResis"
+BNDFC = "boundingFeature.shp"
+
 
 def write_cores_to_map(x, coresToMap):
     """ Save core list at start of loop to allow a run to be re-started
@@ -207,11 +212,10 @@ def STEP3_calc_cwds():
             gprint('\nCreating bounding circles using buffer '
                               'analysis.')
 
-            dir, BNDCIRCENS = path.split(cfg.BNDCIRCENS)
             lu.make_points(boundingCirclePointArray, BNDCIRCENS)
-            lu.delete_data(cfg.BNDCIRS)
-            arcpy.Buffer_analysis(cfg.BNDCIRCENS, cfg.BNDCIRS, "radius")
-            arcpy.DeleteField_management(cfg.BNDCIRS, "BUFF_DIST")
+            lu.delete_data(BNDCIRS)
+            arcpy.Buffer_analysis(BNDCIRCENS, BNDCIRS, "radius")
+            arcpy.DeleteField_management(BNDCIRS, "BUFF_DIST")
 
             gprint('Successfully created bounding circles around '
                               'potential corridors using \na buffer of ' +
@@ -223,14 +227,14 @@ def STEP3_calc_cwds():
                               str(float(cfg.BUFFERDIST)) + ' map units.\n')
             bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST)
             gprint('Extracting raster....')
-            lu.delete_data(cfg.BOUNDRESIS)
+            lu.delete_data(BOUNDRESIS)
             bound_resis = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
-            bound_resis.save(cfg.BOUNDRESIS)
+            bound_resis.save(BOUNDRESIS)
             gprint('\nReduced resistance raster extracted using '
                               'bounding circle.')
 
         else: #if not using bounding circles, just go with resistance raster.
-            cfg.BOUNDRESIS = cfg.RESRAST
+            bound_resis = cfg.RESRAST
 
         # ---------------------------------------------------------------------
         # Rasterize core areas to speed cost distance calcs
@@ -238,8 +242,8 @@ def STEP3_calc_cwds():
 
         arcpy.SelectLayerByAttribute_management(cfg.FCORES, "CLEAR_SELECTION")
 
-        arcpy.env.cellSize = cfg.BOUNDRESIS
-        arcpy.env.extent = cfg.BOUNDRESIS
+        arcpy.env.cellSize = bound_resis
+        arcpy.env.extent = bound_resis
         if rerun:
             # saved linktable replaces the one now in memory
             linkTable = lu.load_link_table(savedLinkTableFile)
@@ -269,8 +273,8 @@ def STEP3_calc_cwds():
             # make a copy:
             linkTablePassed = linkTableMod.copy()
 
-            (linkTableReturned, lcpLoop) = do_cwd_calcs(x,
-                        linkTablePassed, coresToMap, lcpLoop)
+            linkTableReturned, lcpLoop = do_cwd_calcs(
+                x, linkTablePassed, coresToMap, lcpLoop, bound_resis)
 
             linkTableMod = linkTableReturned
             sourceCore = int(coresToMap[x])
@@ -351,7 +355,7 @@ def STEP3_calc_cwds():
 
 
 
-def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
+def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis):
     try:
         # This is the focal core area we're running cwd out from
         sourceCore = int(coresToMap[x])
@@ -395,7 +399,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
         if cfg.BUFFERDIST is not None:
             # FIXME: move outside of loop   # new circle
             arcpy.MakeFeatureLayer_management(
-                cfg.BNDCIRS, "fGlobalBoundingFeat")
+                path.join(cfg.SCRATCHDIR, BNDCIRS), "fGlobalBoundingFeat")
 
             start_time = perf_counter()
             # loop through targets and get bounding circles that
@@ -419,22 +423,22 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
                     "fGlobalBoundingFeat", "ADD_TO_SELECTION", field +
                     " = '" + cores_x_y + "'")
 
-            lu.delete_data(path.join(coreDir,cfg.BNDFC))
+            lu.delete_data(path.join(coreDir,BNDFC))
             # FIXME: may not be needed- can we just clip raster
             # using selected?
             arcpy.CopyFeatures_management("fGlobalBoundingFeat",
-                                           cfg.BNDFC)
+                                           BNDFC)
 
             # Clip out bounded area of resistance raster for cwd
             # calculations from focal core
             bResistance = path.join(coreDir,"bResistance") # Can't be tif-
                                                            # need STA for CWD
             lu.delete_data(bResistance)
-            bnd_resis = arcpy.sa.ExtractByMask(cfg.BOUNDRESIS, cfg.BNDFC)
+            bnd_resis = arcpy.sa.ExtractByMask(bound_resis, BNDFC)
             bnd_resis.save(bResistance)
 
         else:
-            bResistance = cfg.BOUNDRESIS
+            bResistance = bound_resis
         # ---------------------------------------------------------
         # CWD Calculations
         outDistanceRaster = lu.get_cwd_path(sourceCore)
@@ -574,7 +578,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
                                               str(int(sourceCore)))
 
                     corePairRas = path.join(coreDir, "s3corepair")
-                    arcpy.env.extent = cfg.BOUNDRESIS
+                    arcpy.env.extent = bound_resis
 
                     arcpy.FeatureToRaster_conversion(
                             cfg.FCORES, cfg.COREFN,
