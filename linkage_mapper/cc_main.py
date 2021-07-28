@@ -230,33 +230,24 @@ def pair_cores(cpair_tbl):
                                   "", "", "NON_NULLABLE")
         arcpy.DeleteField_management(cpair_tbl, "Field1")
 
-        srows = arcpy.SearchCursor(cc_env.prj_core_fc, "", "",
-                                   cc_env.core_fld, cc_env.core_fld + " A")
+        with arcpy.da.SearchCursor(cc_env.prj_core_fc, cc_env.core_fld) \
+                as srows:
+            cores_list = [srow.getValue(cc_env.core_fld)
+                          for srow in sorted(srows)]
 
-        cores_list = [srow.getValue(cc_env.core_fld) for srow in srows]
         cores_product = list(itertools.combinations(cores_list, 2))
 
         lm_util.gprint("There are " + str(len(cores_list)) + " unique "
                        "cores and " + str(len(cores_product)) + " pairings")
 
-        irows = arcpy.InsertCursor(cpair_tbl)
-        for nrow in cores_product:
-            outputrow = irows.newRow()
-            outputrow.setValue(FR_COL, int(nrow[0]))
-            outputrow.setValue(TO_COL, int(nrow[1]))
-            irows.insertRow(outputrow)
+        with arcpy.da.InsertCursor(cpair_tbl, [FR_COL, TO_COL]) as irows:
+            for nrow in cores_product:
+                irows.insertRow(int(nrow[0]), int(nrow[1]))
 
         return cpair_tbl
 
     except Exception:
         raise
-    finally:
-        if srows:
-            del srows
-        if outputrow:
-            del outputrow
-        if irows:
-            del irows
 
 
 def limit_cores(pair_tbl, stats_tbl):

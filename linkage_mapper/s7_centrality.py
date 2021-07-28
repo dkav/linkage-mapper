@@ -160,23 +160,19 @@ def STEP7_calc_centrality():
             #row = lu.get_linktable_row(linkId, linkTable)
             linkTable[row,cfg.LTB_CURRENT] = currents[x,2]
 
-        coreCurrentFN = 'Circuitscape_network_node_currents_cum.txt'
-        nodeCurrentList = path.join(OUTCENTRALITYDIR, coreCurrentFN)
-        nodeCurrents = load_graph(nodeCurrentList,graphType='graph/network',
-                              datatype=npy.float64)
+        node_currents = load_graph(
+            path.join(OUTCENTRALITYDIR,
+                      'Circuitscape_network_node_currents_cum.txt'),
+            graphType='graph/network', datatype=npy.float64)
 
-        numNodeCurrents = nodeCurrents.shape[0]
-        rows = arcpy.UpdateCursor(coreCopy)
-        row = rows.newRow()
-        for row in rows:
-            coreID = row.getValue(cfg.COREFN)
-            for i in range (0, numNodeCurrents):
-                if coreID == nodeCurrents[i,0]:
-                    row.setValue("CF_Central", nodeCurrents[i,1])
-                    break
-            rows.updateRow(row)
-            #row = rows.newRow()
-        del row, rows
+        fields = [cfg.COREFN, "CF_Central"]
+        with arcpy.da.UpdateCursor(coreCopy, fields) as cursor:
+            for row in cursor:
+                for node_current in node_currents:
+                    if row[0] == node_current[0]:
+                        row[1] = node_current[1]
+                        cursor.updateRow(row)
+                        break
         gprint('Done with centrality calculations.')
 
         finalLinkTable = lu.update_lcp_shapefile(linkTable, lastStep=5,
