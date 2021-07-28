@@ -66,14 +66,6 @@ def STEP3_calc_cwds():
         gprint('Running script ' + _SCRIPT_NAME)
         lu.dashline(0)
 
-        # Super secret setting to re-start failed run.  Enter 'RESTART' as the
-        # Name of the pairwise distance table in step 2, and uncheck step 2.
-        # We can eventually place this in a .ini file.
-        rerun = False
-        if cfg.S2EUCDISTFILE != None:
-            if cfg.S2EUCDISTFILE.lower() == "restart":
-                rerun = True
-
         if (cfg.BUFFERDIST) is not None:
             gprint('Bounding circles plus a buffer of ' +
                               str(float(cfg.BUFFERDIST)) + ' map units will '
@@ -108,31 +100,35 @@ def STEP3_calc_cwds():
         gprint('\nNumber of core areas to connect: ' +
                           str(numCoresToMap))
 
-        if rerun:
-            # If picking up a failed run, make sure needed files are there
+        # Super secret setting to re-start failed run.  Enter 'RESTART' as the
+        # Name of the pairwise distance table in step 2, and uncheck step 2.
+        # We can eventually place this in a .ini file.
+        rerun = False
+        if cfg.S2EUCDISTFILE is not None and cfg.S2EUCDISTFILE.lower() == "restart":
+            # Make sure needed files are there
             lu.dashline(1)
-            gprint ('\n****** RESTART MODE ENABLED ******\n')
-            gprint ('**** NOTE: This mode picks up step 3 where a\n'
-                    'previous run left off due to a crash or user\n'
-                    'abort.  It assumes you are using the same input\n'
-                    'data used in the terminated run.\n\n')
+            gprint('\n****** RESTART MODE ENABLED ******\n')
+            gprint('**** NOTE: This mode picks up step 3 where a\n'
+                   'previous run left off due to a crash or user\n'
+                   'abort.  It assumes you are using the same input\n'
+                   'data used in the terminated run.\n\n')
             lu.warn('IMPORTANT: Your LCP and stick feature classes\n'
                     'will LOSE LCPs that were already created, but\n'
                     'your final raster corridor map should be complete.\n')
-
             lu.dashline(0)
             lu.snooze(10)
+
             savedLinkTableFile = path.join(cfg.DATAPASSDIR,
                                            "temp_linkTable_s3_partial.csv")
             coreListFile = path.join(cfg.DATAPASSDIR, "temp_cores_to_map.csv")
 
             if not path.exists(savedLinkTableFile) or not path.exists(
                                                           coreListFile):
-
                 gprint('No partial results file found from previous '
                        'stopped run. Starting run from beginning.\n')
                 lu.dashline(0)
-                rerun = False
+            else:
+                rerun = True
 
         # If picking up a failed run, use old folders
         if not rerun:
