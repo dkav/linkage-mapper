@@ -23,8 +23,6 @@ import lm_util as lu
 
 _SCRIPT_NAME = "lm_s3_cwd.py"
 
-tif = ''
-
 gprint = lu.gprint
 
 
@@ -225,7 +223,6 @@ def STEP3_calc_cwds():
                               str(float(cfg.BUFFERDIST)) + ' map units.\n')
             bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST)
             gprint('Extracting raster....')
-            cfg.BOUNDRESIS = cfg.BOUNDRESIS + tif
             lu.delete_data(cfg.BOUNDRESIS)
             bound_resis = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
             bound_resis.save(cfg.BOUNDRESIS)
@@ -451,7 +448,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
 
             # Create raster that just has source core in it
             # Note: this seems faster than setnull with LI grid.
-            SRCRASTER = 'source' + tif
+            SRCRASTER = 'source'
             lu.delete_data(path.join(coreDir, SRCRASTER))
             conRaster = arcpy.sa.Con(
                     arcpy.Raster(cfg.CORERAS) == int(sourceCore), 1)
@@ -517,7 +514,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
                                                + 1000)
 
                 # Create raster that just has target core in it
-                TARGETRASTER = 'targ' + tif
+                TARGETRASTER = 'targ'
                 lu.delete_data(path.join(coreDir, TARGETRASTER))
                 conRaster = arcpy.sa.Con(
                         arcpy.sa.IsNull(outDistanceRaster),
@@ -544,7 +541,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
                         pass
                 # Cost path maps the least cost path
                 # between source and target
-                lcpRas = path.join(coreDir, "lcp" + tif)
+                lcpRas = path.join(coreDir, "lcp")
                 lu.delete_data(lcpRas)
 
                 # Note: costpath uses GDAL.
@@ -576,7 +573,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
                                               ' <> ' +
                                               str(int(sourceCore)))
 
-                    corePairRas = path.join(coreDir, "s3corepair" + tif)
+                    corePairRas = path.join(coreDir, "s3corepair")
                     arcpy.env.extent = cfg.BOUNDRESIS
 
                     arcpy.FeatureToRaster_conversion(
