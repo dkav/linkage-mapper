@@ -31,13 +31,12 @@ BOUNDRESIS = "boundResis"
 BNDFC = "boundingFeature.shp"
 
 
-def write_cores_to_map(x, coresToMap):
+def write_cores_to_map(x, coresToMap, coreListFile):
     """ Save core list at start of loop to allow a run to be re-started
         if it fails.
 
     """
     try:
-        coreListFile = path.join(cfg.DATAPASSDIR, "temp_cores_to_map.csv")
         outFile = open(coreListFile, "w")
         outFile.write("#INDEX of last core being processed:\n")
         outFile.write(str(int(x)))
@@ -80,6 +79,11 @@ def STEP3_calc_cwds():
         linkTable = lu.load_link_table(linkTableFile)
         lu.report_links(linkTable)
 
+        tmp_lnktbl_s3_partial = path.join(
+            cfg.DATAPASSDIR, "rs_linkTable_s3_partial.csv")
+        tmp_core_list_file = path.join(
+            cfg.DATAPASSDIR, "rs_cores_to_map.csv")
+
         # Identify cores to map from LinkTable
         coresToMap = npy.unique(linkTable[:, cfg.LTB_CORE1:cfg.LTB_CORE2 + 1])
         numCoresToMap = len(coresToMap)
@@ -110,12 +114,8 @@ def STEP3_calc_cwds():
             lu.dashline(0)
             lu.snooze(10)
 
-            savedLinkTableFile = path.join(cfg.DATAPASSDIR,
-                                           "temp_linkTable_s3_partial.csv")
-            coreListFile = path.join(cfg.DATAPASSDIR, "temp_cores_to_map.csv")
-
-            if not path.exists(savedLinkTableFile) or not path.exists(
-                                                          coreListFile):
+            if (not path.exists(tmp_lnktbl_s3_partial) or
+                    not path.exists(tmp_core_list_file)):
                 gprint('No partial results file found from previous '
                        'stopped run. Starting run from beginning.\n')
                 lu.dashline(0)
@@ -243,8 +243,8 @@ def STEP3_calc_cwds():
         arcpy.env.extent = bound_resis
         if rerun:
             # saved linktable replaces the one now in memory
-            linkTable = lu.load_link_table(savedLinkTableFile)
-            coresToMapSaved = npy.loadtxt(coreListFile, dtype=npy.float64,
+            linkTable = lu.load_link_table(tmp_lnktbl_s3_partial)
+            coresToMapSaved = npy.loadtxt(tmp_core_list_file, dtype=npy.float64,
                                           comments='#', delimiter=',')
             startIndex = coresToMapSaved[0] # Index of core where we left off
             del coresToMapSaved
@@ -271,7 +271,8 @@ def STEP3_calc_cwds():
             linkTablePassed = linkTableMod.copy()
 
             linkTableReturned, lcpLoop = do_cwd_calcs(
-                x, linkTablePassed, coresToMap, lcpLoop, bound_resis)
+                x, linkTablePassed, coresToMap, lcpLoop, bound_resis,
+                tmp_core_list_file)
 
             linkTableMod = linkTableReturned
             sourceCore = int(coresToMap[x])
@@ -280,9 +281,7 @@ def STEP3_calc_cwds():
                     str(endIndex) + ' cores have been processed.')
             start_time = lu.elapsed_time(startTime1)
 
-            outlinkTableFile = path.join(cfg.DATAPASSDIR,
-                                         "temp_linkTable_s3_partial.csv")
-            lu.write_link_table(linkTableMod, outlinkTableFile)
+            lu.write_link_table(linkTableMod, tmp_lnktbl_s3_partial)
             # Increment  loop counter
             x = x + 1
         #----------------------------------------------------------------------
@@ -321,11 +320,9 @@ def STEP3_calc_cwds():
         gprint(outlinkTableFile +
                 '\n updated with cost-weighted distances between core areas.')
 
-        #Clean up temporary files for restart code
-        tempFile = path.join(cfg.DATAPASSDIR, "temp_cores_to_map.csv")
-        lu.delete_file(tempFile)
-        tempFile = path.join(cfg.DATAPASSDIR, "temp_linkTable_s3_partial.csv")
-        lu.delete_file(tempFile)
+        # Clean up temporary files for restart code
+        lu.delete_file(tmp_lnktbl_s3_partial)
+        lu.delete_file(tmp_core_list_file)
 
         # Check if climate tool is calling linkage mapper
         if cfg.TOOL == cfg.TOOL_CC:
@@ -351,8 +348,8 @@ def STEP3_calc_cwds():
     return
 
 
-
-def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis):
+def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
+                 core_list_file):
     try:
         # This is the focal core area we're running cwd out from
         sourceCore = int(coresToMap[x])
@@ -366,7 +363,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis):
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         arcpy.env.extent = "MINOF"
 
-        write_cores_to_map(x, coresToMap)
+        write_cores_to_map(x, coresToMap, core_list_file)
 
         # Get target cores based on linktable with reinstated links
         # (we temporarily disable them below by adding 1000)
