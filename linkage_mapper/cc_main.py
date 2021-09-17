@@ -75,7 +75,7 @@ def arc_wksp_setup():
     arcpy.env.pyramid = "NONE"
     arcpy.env.rasterStatistics = "NONE"
 
-    lm_util.delete_data(cc_env.scratch_dir)
+    lm_util.delete_dir(cc_env.scratch_dir)
     cc_util.mk_proj_dir(cc_env.scratch_dir)
     arcpy.CreateFileGDB_management(os.path.dirname(cc_env.cc_gdb),
                                    os.path.basename(cc_env.cc_gdb))

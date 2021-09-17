@@ -254,8 +254,7 @@ def step6_calc_barriers():
                             out_focal_stats.save(focal_ras2)
                         arcpy.env.extent = cfg.RESRAST
 
-                    lu.delete_data(cwd_tmp1)
-                    lu.delete_data(cwd_tmp2)
+                    lu.delete_data(cwd_tmp1, cwd_tmp2)
 
                     barrier_ras = path.join(
                         cbarrierdir, "b" + str(radius) + "_" + str(corex)

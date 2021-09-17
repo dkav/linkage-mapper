@@ -463,8 +463,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
             back_rast = outDistanceRaster.replace("cwd_", "back_")
         else:
             back_rast = "BACK"
-            lu.delete_data(path.join(coreDir, back_rast))
-            lu.delete_data(outDistanceRaster)
+            lu.delete_data(path.join(coreDir, back_rast), outDistanceRaster)
             start_time = perf_counter()
 
             # Create raster that just has source core in it

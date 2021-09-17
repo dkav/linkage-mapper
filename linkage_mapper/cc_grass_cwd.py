@@ -61,16 +61,18 @@ def grass_cwd(core_list):
         run_grass_cmd("r.in.gdal", input=resist_asc, output=resist_lyr)
         run_grass_cmd("r.in.gdal", input=core_asc, output=core_lyr)
 
+        lm_util.delete_data(climate_asc, resist_asc, core_asc)
+
         # Generate CWD and Back rasters
         gen_cwd_back(core_list, climate_lyr, resist_lyr, core_lyr)
+
+        lm_util.delete_dir(gisdbase)
+        lm_util.delete_file(ccr_grassrc)
 
     except Exception:
         raise
     finally:
         os.environ["PATH"] = start_path
-        for data in ([gisdbase, ccr_grassrc, climate_asc, resist_asc,
-                      core_asc]):
-            lm_util.delete_data(data)
 
 
 def write_grassrc(ccr_grassrc, gisdbase):

@@ -41,8 +41,8 @@ def STEP1_get_adjacencies():
 
         #remove adj directory and files from previous runs
         lu.delete_dir(cfg.ADJACENCYDIR)
-        lu.delete_data(cfg.CWDADJFILE)
-        lu.delete_data(cfg.EUCADJFILE)
+        lu.delete_file(cfg.CWDADJFILE)
+        lu.delete_file(cfg.EUCADJFILE)
 
         if not cfg.S2ADJMETH_CW and not cfg.S2ADJMETH_EU:
             # Adjacency not needed
@@ -147,8 +147,7 @@ def cwadjacency():
             arcpy.CreateFileGDB_management(cfg.OUTPUTDIR, path.basename(cfg.CWDGDB))
         outDistanceRaster = path.join(cfg.CWDGDB, PREFIX + "_cwd")
         alloc_ras = path.join(cfg.ADJACENCYDIR, ALLOC_RASFN)
-        lu.delete_data(alloc_ras)
-        lu.delete_data(outDistanceRaster)
+        lu.delete_data(alloc_ras, outDistanceRaster)
 
         costAllocOut = arcpy.sa.CostAllocation(
                 cfg.CORERAS, bResistance, cfg.TMAXCWDIST,
@@ -200,8 +199,7 @@ def euadjacency():
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         outDistanceRaster = path.join(cfg.ADJACENCYDIR, "euc")
         alloc_ras = path.join(cfg.ADJACENCYDIR, ALLOC_RASFN)
-        lu.delete_data(alloc_ras)
-        lu.delete_data(outDistanceRaster)
+        lu.delete_data(alloc_ras, outDistanceRaster)
 
         alloc_raster = arcpy.sa.EucAllocation(
                 cfg.CORERAS, "", "", cellSizeEuclidean, "",
