@@ -360,7 +360,7 @@ def STEP8_calc_pinchpoints():
                                 linkTableFinalFile, inLinkTableFile)
             gprint('Copy of linkTable written to '+
                               linkTableFinalFile)
-            #fixme: update sticks?
+            # FIXME: update sticks?
 
             gprint('Creating shapefiles with linework for links.')
             lu.write_link_maps(linkTableFinalFile, step=8)

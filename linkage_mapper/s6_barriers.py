@@ -551,7 +551,7 @@ def step6_calc_barriers():
             mosaic_pct_fn = "bar_radii_pct"
             arcpy.env.workspace = cfg.BARRIERBASEDIR
             for radius in range(start_radius, end_radius + 1, radius_step):
-                # Fixme: run speed test with gdb mosaicking above and here
+                # FIXME: run speed test with gdb mosaicking above and here
                 radius_fn = (prefix + "_BarrierCenters" + sum_suffix + "_Rad"
                              + str(radius))
                 radius_ras = path.join(cfg.BARRIERGDB, radius_fn)
@@ -601,7 +601,7 @@ def step6_calc_barriers():
             arcpy.env.workspace = cfg.BARRIERBASEDIR
             for radius in range(start_radius, end_radius + 1, radius_step):
                 radius_fn = "barriers_fill" + str(radius) + TIF
-                # fixme- do this when only a single radius too
+                # FIXME: do this when only a single radius too
                 radius_ras = path.join(cfg.BARRIERBASEDIR, radius_fn)
                 if radius == start_radius:
                     # If this is the first grid then copy rather than mosaic
@@ -612,7 +612,7 @@ def step6_calc_barriers():
 
                 if cfg.WRITE_PCT_RASTERS:
                     radius_pct_fn = "barriers_fill_pct" + str(radius) + TIF
-                    # fixme- do this when only a single radius too
+                    # FIXME: do this when only a single radius too
                     radius_ras_pct = path.join(cfg.BARRIERBASEDIR,
                                                radius_pct_fn)
                     if radius == start_radius:
@@ -643,7 +643,7 @@ def step6_calc_barriers():
                 for radius in range(start_radius, end_radius + 1, radius_step):
                     radius_fn = (prefix + "_BarrierCircles_RBMin" + sum_suffix
                                  + "_Rad" + str(radius))
-                    # fixme- do this when only a single radius too
+                    # FIXME: do this when only a single radius too
                     radius_ras = path.join(cfg.BARRIERGDB, radius_fn)
 
                     if radius == start_radius:

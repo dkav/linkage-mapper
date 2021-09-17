@@ -99,7 +99,7 @@ def STEP4_refine_network():
                 linkTable[linkId - 1, cfg.LTB_LINKTYPE] = cfg.LT_NNCT
 
         # Connect constellations (aka components or clusters)
-        # Fixme: needs testing.  Move to function.
+        # FIXME: needs testing.  Move to function.
         if cfg.S4CONNECT:
             lu.dashline(1)
             gprint('Connecting constellations')

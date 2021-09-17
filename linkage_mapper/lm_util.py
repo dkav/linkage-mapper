@@ -766,7 +766,7 @@ def update_lcp_shapefile(linktable, lastStep, thisStep):
                 current = linkTableTemp[linkid - 1, cfg.LTB_CURRENT]
                 effResist = linkTableTemp[linkid - 1, cfg.LTB_EFFRESIST]
                 CWDTORRatio = linkTableTemp[linkid - 1, cfg.LTB_CWDTORR]
-                #fixme: linkid - 1 assumes linktable ordered
+                # FIXME: linkid - 1 assumes linktable ordered
                 row.setValue("Eff_Resist", effResist)
                 row.setValue("cwd2EffR_r",CWDTORRatio)
                 row.setValue("CF_Central", current)

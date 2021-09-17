@@ -82,7 +82,7 @@ def circuitscape_master(argv=None):
         lu.create_dir(cfg.ARCSCRATCHDIR)
 
         if cfg.DO_ALLPAIRS:
-            #  Fixme: move raster path to config
+            #  FIXME: move raster path to config
             S5CORRIDORRAS = path.join(cfg.OUTPUTGDB,cfg.PREFIX + "_corridors")
             if not arcpy.Exists(S5CORRIDORRAS):
                 S5CORRIDORRAS = path.join(cfg.OUTPUTGDB, cfg.PREFIX +

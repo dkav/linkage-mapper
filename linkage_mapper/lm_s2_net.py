@@ -254,7 +254,7 @@ def STEP2_build_network():
     return
 
 
-# Fixme: routine below could be used for other operations in code above.
+# FIXME: routine below could be used for other operations in code above.
 def get_adj_list(adjFile):
     try:
         inAdjList = npy.loadtxt(adjFile, dtype='int32', comments='#',

@@ -181,7 +181,7 @@ def STEP3_calc_cwds():
                     (linkTable[x,cfg.LTB_LINKTYPE] == cfg.LT_KEEP)):
                     # if it's a valid corridor link
                     linkId = int(linkTable[x,cfg.LTB_LINKID])
-                    # fixme- this code is clumsy- can trim down
+                    # FIXME: this code is clumsy- can trim down
                     cores = npy.zeros((1,3), dtype='int32')
                     cores[0,:] = npy.sort([0, linkTable[x,cfg.LTB_CORE1],
                                       linkTable[x,cfg.LTB_CORE2]])
@@ -413,7 +413,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
         # calculations-This is a set of circles encompassing core areas
         # we'll be connecting each core area to.
         if cfg.BUFFERDIST is not None:
-            # fixme: move outside of loop   # new circle
+            # FIXME: move outside of loop   # new circle
             arcpy.MakeFeatureLayer_management(
                 cfg.BNDCIRS, "fGlobalBoundingFeat")
 
@@ -434,13 +434,13 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
 
                 cores_x_y = str(int(corex))+'_'+str(int(corey))
                 field = "cores_x_y"
-                # fixme: need to check for case where link is not found
+                # FIXME: need to check for case where link is not found
                 arcpy.SelectLayerByAttribute_management(
                     "fGlobalBoundingFeat", "ADD_TO_SELECTION", field +
                     " = '" + cores_x_y + "'")
 
             lu.delete_data(path.join(coreDir,cfg.BNDFC))
-            # fixme: may not be needed- can we just clip raster
+            # FIXME: may not be needed- can we just clip raster
             # using selected?
             arcpy.CopyFeatures_management("fGlobalBoundingFeat",
                                            cfg.BNDFC)
@@ -484,11 +484,11 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
 
         start_time = perf_counter()
         # Extract cost distances from source core to target cores
-        # Fixme: there will be redundant calls to b-a when already
+        # FIXME: there will be redundant calls to b-a when already
         # done a-b
         ZNSTATS = path.join(coreDir, "zonestats.dbf")
         lu.delete_data(ZNSTATS)
-        #Fixme: zonalstatistics is returning integer values for minimum. Why???
+        # FIXME: zonalstatistics is returning integer values for minimum. Why???
         #Extra zonalstatistics code implemented later in script to correct
         #values.
         outZSaT = arcpy.sa.ZonalStatisticsAsTable(
@@ -571,7 +571,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop):
                         back_rast, "BEST_SINGLE", "")
                 outCostPath.save(lcpRas)
 
-                # fixme: may be fastest to not do selection, do
+                # FIXME: may be fastest to not do selection, do
                 # EXTRACTBYMASK,.getValuelist, use code snippet at end
                 # of file to discard src and target values. Still this
                 # is fast- 13 sec for LI data...But I'm not very
