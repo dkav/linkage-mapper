@@ -1,3 +1,6 @@
 [TYPECHECK]
 ignored-modules=arcpy,grass
 ignored-classes=Configure
+
+[MISCELLANEOUS]
+notes=FIXME,XXX,TODO,HACK
