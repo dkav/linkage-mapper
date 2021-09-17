@@ -1020,6 +1020,8 @@ def create_log_file(param_keys, param_values):
 def write_log(string):
     try:
         logFile=open(cfg.logFilePath,'a')
+    except AttributeError:  # HACK: Catch calls made before log is created
+        return
     except Exception:
         logFile=open(cfg.logFilePath,'w')
     try:
