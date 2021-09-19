@@ -112,77 +112,65 @@ def setup_wrkspace(gisdbase, ccr_grassrc, geo_file):
 
 def gen_cwd_back(core_list, climate_lyr, resist_lyr, core_lyr):
     """Generate CWD and back rasters using r.walk in GRASS."""
-    slope_factor = "1"
-    walk_coeff_flat = "1"
-    walk_coeff_uphill = str(cc_env.climate_cost)
-    walk_coeff_downhill = str(cc_env.climate_cost * -1)
-    walk_coeff = (walk_coeff_flat + "," + walk_coeff_uphill + "," +
-                  walk_coeff_downhill + "," + walk_coeff_downhill)
+    # Define walk_coeff parameters for use in r.walk
+    walk_coeff = ("{flat}, {uphill}, {downhill}, {downhill}".format(
+        flat=1,
+        uphill=cc_env.climate_cost,
+        downhill=cc_env.climate_cost * -1))
 
-    focal_core_rast = "focal_core_rast"
-    gcwd = "gcwd"
-    gback = "gback"
-    gbackrc = "gbackrc"
-    core_points = "corepoints"
-    no_cores = str(len(core_list))
+    no_cores = len(core_list)
+    ascii_grid = os.path.join(cc_env.scratch_dir, "grast_exp.asc")
 
-    # Map from directional degree output from GRASS to Arc's 1 to 8 directions
-    # format. See r.walk source code and ArcGIS's 'Understanding cost distance
-    # analysis' help page.
-    rc_rules = "0=0\n180=5\n225=4\n270=3\n315=2\n360=1\n45=8\n90=7\n135=6"
+    # Get spatial reference. Used in defining projections in ESRI Grids
+    spatial_ref = arcpy.Describe(cc_env.prj_core_rast).spatialReference
 
     try:
-        for position, core_no in enumerate(core_list):
-            core_no_txt = str(core_no)
-            lm_util.gprint("Generating CWD and back rasters for Core " +
-                           core_no_txt + " (" + str(position + 1) + "/" +
-                           no_cores + ")")
+        for idx, core_no in enumerate(core_list):
+            lm_util.gprint(
+                "Generating CWD and back rasters for Core {core} "
+                "({count}/{total})".format(
+                    core=core_no, count=idx + 1, total=no_cores))
 
-            # Pull out focal core for cwd analysis
-            write_grass_cmd("r.reclass", input=core_lyr,
-                            output=focal_core_rast, overwrite=True,
-                            rules="-", stdin=core_no_txt + '=' + core_no_txt)
-
-            # Converting raster core to point feature
-            run_grass_cmd("r.to.vect", flags="z", input=focal_core_rast,
-                          output=core_points, type="point")
-
-            # Running r.walk to create CWD and back raster
-            run_grass_cmd("r.walk", elevation=climate_lyr,
-                          friction=resist_lyr, output=gcwd, outdir=gback,
-                          start_points=core_points, walk_coeff=walk_coeff,
-                          slope_factor=slope_factor)
+            core_flt = "{core} = {core}".format(core=core_no)
+            write_grass_cmd("r.reclass", input=core_lyr, output="fcore_rst",
+                            rules="-", stdin=core_flt)
+            run_grass_cmd("r.to.vect", flags="z", input="fcore_rst",
+                          output="fcore_pnts", type="point")
+            run_grass_cmd(
+                "r.walk", elevation=climate_lyr,
+                friction=resist_lyr, output="gcwd_rst", outdir="gback_rst",
+                start_points="fcore_pnts", walk_coeff=walk_coeff,
+                slope_factor="1")
 
             # Set source cells equal to zero to match ArcGIS back rasters
             grass.mapcalc("gback_src_rst = "
-                          "eval(fcore = if(isnull({fcore_rst}), 255, 0), "
-                          "if(fcore == 0, 0, {gback_rst}))".format(
-                            fcore_rst=focal_core_rast, gback_rst=gback))
+                          "eval(fcore = if(isnull(fcore_rst), 255, 0), "
+                          "if(fcore == 0, 0, gback_rst))")
 
-            # Reclassify back raster directional degree output to ArcGIS format
-            write_grass_cmd("r.reclass", input="gback_src_rst", output=gbackrc,
-                            rules="-", stdin=rc_rules)
+            # Reclassify back raster directional degree output from GRASS's
+            # format to Arc's 1 to 8 directions format
+            write_grass_cmd(
+                "r.reclass", input="gback_src_rst",
+                output="gback_arc_rst", rules="-",
+                stdin=("0=0\n180=5\n225=4\n270=3\n"
+                       "315=2\n360=1\n45=8\n90=7\n135=6"))
 
-            # Get spatial reference for defining ARCINFO raster projections
-            desc_data = arcpy.Describe(cc_env.prj_core_rast)
-            spatial_ref = desc_data.spatialReference
+            lm_cwd = lm_util.get_cwd_path(core_no)
+            lm_back = lm_cwd.replace("cwd_", "back_")
 
-            # Get cwd path (e.g. ..\datapass\cwd\cw\cwd_3)
-            cwd_path = lm_util.get_cwd_path(core_no)
-
-            def create_arcgrid(rtype, grass_grid):
+            def create_arcgrid(grass_grid, arc_grid):
                 """Export GRASS raster to ASCII and then to ARCINFO grid."""
-                ascii_grid = os.path.join(cc_env.scratch_dir,
-                                          rtype + core_no_txt + ".asc")
-                arc_grid = cwd_path.replace("cwd_", rtype)
                 run_grass_cmd("r.out.gdal", flags="c", input=grass_grid,
                               output=ascii_grid, format="AAIGrid", nodata=15)
                 arcpy.CopyRaster_management(ascii_grid, arc_grid)
+                # GDAL prj can cause issues need to update using ESRI prj
                 arcpy.DefineProjection_management(arc_grid, spatial_ref)
-                lm_util.delete_data(ascii_grid)
 
-            create_arcgrid("cwd_", gcwd)  # Export CWD raster
-            create_arcgrid("back_", gbackrc)  # Export reclassified back raster
+            create_arcgrid("gcwd_rst", lm_cwd)
+            create_arcgrid("gback_arc_rst", lm_back)
+
+        lm_util.delete_data(ascii_grid)
+
     except Exception:
         raise
 
