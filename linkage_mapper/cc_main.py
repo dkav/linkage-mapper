@@ -43,11 +43,10 @@ def main(argv=None):
     try:
         cc_env.configure(argv)
         cc_util.check_cc_project_dir()
-        lm_util.create_dir(cc_env.proj_dir)
-
         config_lm()
-        arc_wksp_setup()
         log_setup(argv)
+        make_dirs()
+        set_arcpy_env()
 
         run_analysis()
 
@@ -69,19 +68,6 @@ def main(argv=None):
         lm_util.run_time(stime)
 
 
-def arc_wksp_setup():
-    """Define ArcPy workspace."""
-    arcpy.env.cellSize = "MAXOF"  # Setting to default. For batch runs.
-    arcpy.env.pyramid = "NONE"
-    arcpy.env.rasterStatistics = "NONE"
-
-    lm_util.delete_dir(cc_env.scratch_dir)
-    cc_util.mk_proj_dir(cc_env.scratch_dir)
-    arcpy.CreateFileGDB_management(os.path.dirname(cc_env.cc_gdb),
-                                   os.path.basename(cc_env.cc_gdb))
-    arcpy.env.workspace = cc_env.cc_gdb
-
-
 def config_lm():
     """Configure Linkage Mapper."""
     lm_arg = [_SCRIPT_NAME, cc_env.proj_dir, cc_env.prj_core_fc,
@@ -95,6 +81,14 @@ def config_lm():
     lm_util.gprint('\nClimate Linkage Mapper Version ' + lm_env.releaseNum)
 
 
+def set_arcpy_env():
+    """Set ArcPy environment paramaters for model run."""
+    arcpy.env.cellSize = "MAXOF"  # Setting to default. For batch runs.
+    arcpy.env.pyramid = "NONE"
+    arcpy.env.rasterStatistics = "NONE"
+    arcpy.env.workspace = cc_env.cc_gdb
+
+
 def log_setup(param_values):
     """Set up Linkage Mapper logging."""
     lm_util.create_dir(lm_env.LOGDIR)
@@ -106,6 +100,15 @@ def log_setup(param_values):
                                               cc_env.resist_rast])
     else:
         lm_util.log_metadata(cc_env.core_fc, [cc_env.climate_rast])
+
+
+def make_dirs():
+    """Make directories for Climate Linkage Mapper."""
+    lm_util.create_dir(cc_env.proj_dir)
+    lm_util.delete_dir(cc_env.scratch_dir)
+    cc_util.mk_proj_dir(cc_env.scratch_dir)
+    arcpy.CreateFileGDB_management(os.path.dirname(cc_env.cc_gdb),
+                                   os.path.basename(cc_env.cc_gdb))
 
 
 def run_analysis():
