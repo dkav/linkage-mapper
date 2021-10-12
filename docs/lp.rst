@@ -31,8 +31,8 @@ https://doi.org/10.6084/m9.figshare.5673715
 
 `1.1 Tool Overview 4 <#tool-overview>`__
 
-`1.2 Climate-wise Considerations (optional)
-5 <#climate-wise-considerations-optional>`__
+`1.2 Climate-wise Considerations (optional to run)
+5 <#climate-wise-considerations-optional-to-run>`__
 
 `1.3 Example Applications 5 <#example-applications>`__
 
@@ -56,51 +56,49 @@ https://doi.org/10.6084/m9.figshare.5673715
 `4.6 Advanced Settings in lp_settings.py
 10 <#advanced-settings-in-lp_settings.py>`__
 
-`5 Summary of Algorithm 11 <#summary-of-algorithm>`__
+`5 Other Usage Notes 11 <#other-usage-notes>`__
 
-`6 Other Usage Notes 11 <#other-usage-notes>`__
+`5.1 Upgrading 11 <#upgrading>`__
 
-`6.1 Upgrading 11 <#upgrading>`__
-
-`6.2 Enhancing Analyses Using Optional Settings
+`5.2 Enhancing Analyses Using Optional Settings
 11 <#enhancing-analyses-using-optional-settings>`__
 
-`6.3 Other Suggestions and Troubleshooting
-12 <#other-suggestions-and-troubleshooting>`__
+`5.3 Other Suggestions and Troubleshooting
+11 <#other-suggestions-and-troubleshooting>`__
 
-`6.4 Other Applications 12 <#other-applications>`__
+`5.4 Other Applications 12 <#other-applications>`__
 
-`7 Community 12 <#community>`__
+`6 Community 12 <#community>`__
 
-`8 Key Acronyms 13 <#key-acronyms>`__
+`7 Key Acronyms 12 <#key-acronyms>`__
 
-`9 Select References 13 <#select-references>`__
+`8 Select References 13 <#select-references>`__
 
-`10 Linkage Priority Tutorial 14 <#linkage-priority-tutorial>`__
+`9 Linkage Priority Tutorial 14 <#linkage-priority-tutorial>`__
 
-`10.1 Run Linkage Pathways, then Linkage Priority Tool with Defaults
+`9.1 Run Linkage Pathways, then Linkage Priority Tool with Defaults
 14 <#run-linkage-pathways-then-linkage-priority-tool-with-defaults>`__
 
-`10.2 Add Other Core Area Value (e.g. Climate Refugia)
+`9.2 Add Other Core Area Value (e.g. Climate Refugia)
 18 <#add-other-core-area-value-e.g.-climate-refugia>`__
 
-`10.3 Using Climate Signature to Prioritize Climate Analogs
+`9.3 Using Climate Signature to Prioritize Climate Analogs
 20 <#using-climate-signature-to-prioritize-climate-analogs>`__
 
-`10.4 Combine the above sections into a single model run.
+`9.4 Combine the above sections into a single model run.
 23 <#combine-the-above-sections-into-a-single-model-run.>`__
 
-`11 Advanced Linkage Priority Tutorial
+`10 Advanced Linkage Priority Tutorial
 24 <#advanced-linkage-priority-tutorial>`__
 
-`11.1 Shortcut for Multiple Runs 24 <#shortcut-for-multiple-runs>`__
+`10.1 Shortcut for Multiple Runs 24 <#shortcut-for-multiple-runs>`__
 
-`11.2 Add Centrality 25 <#add-centrality>`__
+`10.2 Add Centrality 25 <#add-centrality>`__
 
-`11.3 Inspect Core Area Value Component Calculations
+`10.3 Inspect Core Area Value Component Calculations
 27 <#inspect-core-area-value-component-calculations>`__
 
-`11.4 Export Corridor Importance Value
+`10.4 Export Corridor Importance Value
 27 <#export-corridor-importance-value>`__
 
 Introduction
@@ -141,8 +139,8 @@ determining the relative priority of each linkage**
    :width: 6.5in
    :height: 4.10833in
 
-Climate-wise Considerations (optional)
---------------------------------------
+Climate-wise Considerations (optional to run)
+---------------------------------------------
 
 There are many climate considerations that can be incorporated in
 habitat connectivity modeling and mapping. Two have previously been
@@ -166,13 +164,14 @@ used, then linkages that end in a core area that is predicted to be near
 the preferred climate are given higher priority than linkages that lead
 to core areas predicted to be much hotter/drier than the preferred
 climate. More details are provided in the “white paper / specifications
-document” (Gallo, 2019). This criterion, on the top row of the diagram,
-is optional. Users can also include climate in determine relative core
-area value, by giving higher value to cores with higher amount of
-climate refugia. This criterion, on the bottom row of the diagram, is
-also optional.
+document”, the conference presentation video, and conference slides
+(Gallo, 2019a,b,c). This criterion, on the top row of the diagram, is
+optional. Users can also include climate in determine relative core area
+value, by giving higher value to cores with higher amount of climate
+refugia. This criterion, on the bottom row of the diagram, is also
+optional.
 
-See the section 10.3 “Using Linkage Priority/Add Climate Signature” for
+See the section 9.3 “Using Linkage Priority/Add Climate Signature” for
 more details.
 
 Example Applications
@@ -244,7 +243,7 @@ clicking Show Help >>, for example:
    :width: 6.5in
    :height: 1.07708in
 
-For additional details, please see section 6 Other Usage Notes later in
+For additional details, please see section 5 Other Usage Notes later in
 this document.
 
 Required Inputs
@@ -287,13 +286,13 @@ Required Inputs
    -  *Expert Core Area Value (ECAV) Weight*: Decimal value between 0
       and 1 to be applied to the normalized optional ecav field, for
       storing an expert assessment of the relative value of each core;
-      see sections 6.2 and 6.4 below for additional details. (Default
+      see sections 5.2 and 5.4 below for additional details. (Default
       value: 0)
 
    -  *Current Flow Centrality (CFC) Weight*: Decimal value between 0
       and 1 to be applied to the normalized CF_Central field, which is
       optionally calculated by Centrality Mapper after running LM but
-      before running LP; see section 6.2 below for additional details.
+      before running LP; see section 5.2 below for additional details.
       (Default value: 0)
 
    -  *Other Core Area Value (OCAV) Weight*: Decimal value between 0 and
@@ -326,7 +325,7 @@ Required Inputs
    to calculate the current climate signature (i.e. envelope) for each
    core, which feeds into the climate signature difference calculation
    for the two cores at the end of each corridor; see Gallo, 2019 and
-   section 6.2 below for additional details.
+   section 5.2 below for additional details.
 
    -  *Modify the Advanced Climate Signature Parameters? (optional)* If
       this is checked, then the below parameters will turn from grey to
@@ -342,7 +341,7 @@ Required Inputs
       calculate the future climate signature (i.e. envelope) for each
       core, which feeds into the climate signature difference
       calculation for the two cores at the end of each corridor; see
-      section 6.2 below for additional details
+      section 5.2 below for additional details
 
    -  *Linkage Priority of Minimum Climate Analog Ratio*: This is
       A\ :sub:`Rmin` , the lower left starting point of the curve in
@@ -581,19 +580,7 @@ only be changed by editing lp_settings.py (in toolbox/scripts).
 -  KEEPINTERMEDIATE (Boolean): keep intermediate outputs for
    troubleshooting purposes
 
-5. .. rubric:: Summary of Algorithm
-      :name: summary-of-algorithm
-
-   -  This section of the document has been deprecated between version
-      2.0 and version 3.0
-
-   -  The slightly updated version 2.0 algorithm summary is
-      `here <https://docs.google.com/document/d/1_NKZnXJ5ficCY60J4thxQtux27Z1yh3FTT2ZYS-TlQ0/edit>`__.
-
-      -  If anyone wants to volunteer to update it to version 3.0
-         summary that would be appreciated.
-
-6. .. rubric:: Other Usage Notes
+5. .. rubric:: Other Usage Notes
       :name: other-usage-notes
 
    1. .. rubric:: Upgrading
@@ -763,9 +750,19 @@ Gallo, J., G. Aplet, R. Greene, J. Thomson, and A. Lombard. 2020. A
 Transparent and Intuitive Modeling Framework and Software for Efficient
 Land Allocation. *Land*. https://doi.org/10.3390/land9110444
 
-Gallo, JA. 2019. ​Software for prioritizing habitat linkages based on
+Gallo, JA. 2019a. ​Software for prioritizing habitat linkages based on
 climate gradients, climate analogs, or a balanced blend.
 ​\ https://doi.org/10.6084/m9.figshare.7689080
+
+Gallo, JA. 2019b. Video: ​Software for prioritizing habitat linkages
+based on climate gradients, climate analogs, or a balanced blend.
+International Conference for Conservation Biology, Kuala Lampur,
+Malaysia, July 25. ​\ https://doi.org/10.6084/m9.figshare.9161864
+
+Gallo, JA. 2019c. Slides: ​Software for prioritizing habitat linkages
+based on climate gradients, climate analogs, or a balanced blend.
+International Conference for Conservation Biology, Kuala Lampur,
+Malaysia, July 25. ​\ https://doi.org/10.6084/m9.figshare.9072662
 
 Gallo, J. A., J. Strittholt, G. Joseph, H. Rustigian-Romsos, R. Degagne,
 J. Brice, and A. Prisbrey. 2019b. “Mapping Habitat Connectivity Priority
@@ -791,12 +788,12 @@ Forest Service, Rocky Mountain Research Station, Fort Collins, CO.
 Available from
 http://www.fs.fed.us/rm/pubs/rmrs_gtr333.pdf
 
-10. .. rubric:: Linkage Priority Tutorial
-       :name: linkage-priority-tutorial
+9. .. rubric:: Linkage Priority Tutorial
+      :name: linkage-priority-tutorial
 
-    1. .. rubric:: Run Linkage Pathways, then Linkage Priority Tool with
-          Defaults
-          :name: run-linkage-pathways-then-linkage-priority-tool-with-defaults
+   1. .. rubric:: Run Linkage Pathways, then Linkage Priority Tool with
+         Defaults
+         :name: run-linkage-pathways-then-linkage-priority-tool-with-defaults
 
 -  Open *LP Demo.mxd* in ArcMap or the *LP Demo* map in
    *ArcGIS Pro Demo.aprx*.
@@ -1056,7 +1053,7 @@ them, that the linkage between cores 1 and 4 is the highest prirotity
 for investing resources, and the one between 2 and 3 the lowest
 priority.
 
-11. .. rubric:: Advanced Linkage Priority Tutorial
+10. .. rubric:: Advanced Linkage Priority Tutorial
        :name: advanced-linkage-priority-tutorial
 
     1. .. rubric:: Shortcut for Multiple Runs
