@@ -349,13 +349,10 @@ def step6_calc_barriers():
                                 out_con.save(tmp_mosaic_ras_trim)
 
                         else:
-                            raster_string = ('"' + barrier_ras + ";" +
-                                             last_mosaic_ras + '"')
-
                             arcpy.MosaicToNewRaster_management(
-                                raster_string, mosaic_dir, mos_fn, "",
-                                "32_BIT_FLOAT", arcpy.env.cellSize,
-                                "1", "MAXIMUM", "MATCH")
+                                [barrier_ras, last_mosaic_ras],
+                                mosaic_dir, mos_fn, "", "32_BIT_FLOAT",
+                                arcpy.env.cellSize, "1", "MAXIMUM", "MATCH")
 
                     if link_loop > 1:  # Clean up from previous loop
                         lu.delete_data(last_mosaic_ras)
@@ -401,19 +398,17 @@ def step6_calc_barriers():
                                         last_mosaic_ras_pct))
                                 out_con.save(tmp_mosaic_ras_pct)
                             else:
-                                raster_string = (";".join([barrier_ras_pct,
-                                                           last_mosaic_ras_pct])
-
                                 # Get max barriers
                                 arcpy.MosaicToNewRaster_management(
-                                    input_rasters=raster_string,
-                                        output_location=mosaic_dir,
-                                        raster_dataset_name_with_extension\
+                                    input_rasters=[barrier_ras_pct,
+                                                   last_mosaic_ras_pct],
+                                    output_location=mosaic_dir,
+                                    raster_dataset_name_with_extension\
                                         =mosaic_dir_pct,
-                                        pixel_type="32_BIT_FLOAT",
-                                        cellsize=arcpy.env.cellSize,
-                                        number_of_bands="1",
-                                        mosaic_method="MAXIMUM")
+                                    pixel_type="32_BIT_FLOAT",
+                                    cellsize=arcpy.env.cellSize,
+                                    number_of_bands="1",
+                                    mosaic_method="MAXIMUM")
 
                         if link_loop > 1:  # Clean up from previous loop
                             lu.delete_data(last_mosaic_ras_pct)
