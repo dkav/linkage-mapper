@@ -599,9 +599,8 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
 
                 # Create lcp shapefile.  lcploop just keeps track of
                 # whether this is first time function is called.
-                lcpLoop = lu.create_lcp_shapefile(coreDir, linkTable,
-                                                  sourceCore, targetCore,
-                                                  lcpLoop)
+                lcpLoop = create_lcp_shapefile(
+                    linkTable, sourceCore, targetCore, lcpRas, lcpLoop)
 
         # Made it through, so return.
         lu.delete_dir(coreDir)
@@ -645,4 +644,116 @@ def test_for_intermediate_core(workspace,lcpRas,corePairRas):
     # Return any PYTHON or system specific errors
     except Exception:
         lu.dashline(1)
+        lu.exit_with_python_error(_SCRIPT_NAME)
+
+
+def create_lcp_shapefile(linktable, src_core, targ_core, lcp_ras, lcp_loop):
+    """Create lcp shapefile.
+
+    Shows locations of least-cost path lines attributed with corridor
+    info/status.
+
+    """
+    try:
+        rows = lu.get_links_from_core_pairs(linktable, src_core, targ_core)
+        link = rows[0]
+
+        lcpline = 'lcpline.shp'
+
+        arcpy.RasterToPolyline_conversion(lcp_ras, lcpline, "NODATA", "",
+                                          "NO_SIMPLIFY")
+
+        lcpline_dslv = 'lcpline_dslv.shp'
+        arcpy.Dissolve_management(lcpline, lcpline_dslv)
+
+        arcpy.AddField_management(lcpline_dslv, "Link_ID", "LONG", "5")
+        arcpy.CalculateField_management(lcpline_dslv, "Link_ID",
+                                        int(linktable[link, cfg.LTB_LINKID]),
+                                        "PYTHON_9.3")
+
+        linktypecode = linktable[link, cfg.LTB_LINKTYPE]
+        activelink, linktypedesc = lu.get_link_type_desc(linktypecode)
+
+        arcpy.AddField_management(lcpline_dslv, "Active", "SHORT")
+        arcpy.CalculateField_management(lcpline_dslv, "Active", activelink,
+                                        "PYTHON_9.3")
+
+        arcpy.AddField_management(lcpline_dslv, "Link_Info", "TEXT")
+        arcpy.CalculateField_management(lcpline_dslv, "Link_Info",
+                                        linktypedesc, "PYTHON_9.3")
+
+        arcpy.AddField_management(lcpline_dslv, "From_Core", "LONG", "5")
+        arcpy.CalculateField_management(lcpline_dslv, "From_Core",
+                                        int(src_core), "PYTHON_9.3")
+        arcpy.AddField_management(lcpline_dslv, "To_Core", "LONG", "5")
+        arcpy.CalculateField_management(lcpline_dslv, "To_Core",
+                                        int(targ_core), "PYTHON_9.3")
+
+        arcpy.AddField_management(lcpline_dslv, "Euc_Dist", "DOUBLE", "10",
+                                  "2")
+        arcpy.CalculateField_management(lcpline_dslv, "Euc_Dist",
+                                        linktable[link, cfg.LTB_EUCDIST],
+                                        "PYTHON_9.3")
+
+        arcpy.AddField_management(lcpline_dslv, "CW_Dist", "DOUBLE", "10", "2")
+        arcpy.CalculateField_management(lcpline_dslv, "CW_Dist",
+                                        linktable[link, cfg.LTB_CWDIST],
+                                        "PYTHON_9.3")
+        arcpy.AddField_management(lcpline_dslv, "LCP_Length", "DOUBLE", "10",
+                                  "2")
+        rows = arcpy.UpdateCursor(lcpline_dslv)
+        row = next(rows)
+        while row:
+            feat = row.shape
+            lcp_len = int(feat.length)
+            row.setValue("LCP_Length", lcp_len)
+            rows.updateRow(row)
+            row = next(rows)
+        del row, rows
+
+        try:
+            dist_ratio1 = (float(linktable[link, cfg.LTB_CWDIST])
+                           / float(linktable[link, cfg.LTB_EUCDIST]))
+        except ZeroDivisionError:
+            dist_ratio1 = -1
+
+        arcpy.AddField_management(lcpline_dslv, "cwd2Euc_R", "DOUBLE", "10",
+                                  "2")
+        arcpy.CalculateField_management(lcpline_dslv, "cwd2Euc_R", dist_ratio1,
+                                        "PYTHON_9.3")
+
+        try:
+            dist_ratio2 = (float(linktable[link, cfg.LTB_CWDIST])
+                           / float(lcp_len))
+        except ZeroDivisionError:
+            dist_ratio2 = -1
+
+        arcpy.AddField_management(lcpline_dslv, "cwd2Path_R", "DOUBLE", "10",
+                                  "2")
+        arcpy.CalculateField_management(lcpline_dslv, "cwd2Path_R",
+                                        dist_ratio2, "PYTHON_9.3")
+
+        lcp_loop = lcp_loop + 1
+        lcp_shp = path.join(cfg.DATAPASSDIR, "lcpLines_s3.shp")
+        if lcp_loop == 1:
+            if arcpy.Exists(lcp_shp):
+                try:
+                    arcpy.Delete(lcp_shp)
+
+                except Exception:
+                    lu.dashline(1)
+                    msg = ('ERROR: Could not remove LCP shapefile ' +
+                           lcp_shp + '. Was it open in ArcMap?\n You may '
+                           'need to re-start ArcMap to release the file lock.')
+                    lu.raise_error(msg)
+
+            arcpy.Copy_management(lcpline_dslv, lcp_shp)
+        else:
+            arcpy.Append_management(lcpline_dslv, lcp_shp, "TEST")
+
+        return lcp_loop
+
+    except arcpy.ExecuteError:
+        lu.exit_with_geoproc_error(_SCRIPT_NAME)
+    except Exception:
         lu.exit_with_python_error(_SCRIPT_NAME)
