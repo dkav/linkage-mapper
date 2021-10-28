@@ -422,6 +422,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
             # using selected?
             arcpy.CopyFeatures_management("fGlobalBoundingFeat",
                                            BNDFC)
+            lu.delete_data('fGlobalBoundingFeat')
 
             # Clip out bounded area of resistance raster for cwd
             # calculations from focal core
@@ -577,6 +578,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                     arcpy.FeatureToRaster_conversion(
                             cfg.FCORES, cfg.COREFN,
                             corePairRas, arcpy.env.cellSize)
+                    lu.delete_data(cfg.FCORES)
 
                     # ------------------------------------------
                     # Intermediate core test

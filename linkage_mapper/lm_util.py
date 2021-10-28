@@ -1575,6 +1575,7 @@ def copy_final_link_maps(step):
             inActiveLinksShapefile = os.path.join(cfg.LINKMAPGDB,
                                                   PREFIX + '_Inactive_Sticks')
             arcpy.CopyFeatures_management("flinks", inActiveLinksShapefile)
+            delete_data('flinks')
 
 
         if arcpy.Exists(lcpShapefile):
@@ -1594,6 +1595,7 @@ def copy_final_link_maps(step):
             inActiveLcpShapefile = os.path.join(cfg.LINKMAPGDB,
                                                PREFIX + '_Inactive_LCPs')
             arcpy.CopyFeatures_management("flcp", inActiveLcpShapefile)
+            delete_data('flcp')
 
         # Move stick and lcp maps for each step to log directory to reduce
         # clutter in output

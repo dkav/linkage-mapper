@@ -356,6 +356,7 @@ def generate_distance_file():
             del rows
             output.append(csvseparator.join(outputrow))
 
+        lu.delete_data(fs2corefc, fs2corefc2)
         start_time = lu.elapsed_time(start_time)
 
         #  In case coreFC is grouped in TOC, get coreFN for non-Arc statement

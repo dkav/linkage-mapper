@@ -756,6 +756,8 @@ def run_analysis():
         if lm_env.CALCCSPBP == lm_env.CALC_CSPBP:
             calc_blended_priority(lcp_lines)
 
+    lm_util.delete_data(core_lyr)
+
     # Save a copy of Cores as the "Output for ModelBuilder Precondition"
     if lm_env.OUTPUTFORMODELBUILDER:
         arcpy.CopyFeatures_management(lm_env.COREFC,

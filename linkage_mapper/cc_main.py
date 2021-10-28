@@ -420,6 +420,7 @@ def create_lnk_tbl(corefc, core_pairs, frm_cores):
             arcpy.GenerateNearTable_analysis(
                 fcore_vw, tcore_vw, near_tbl,
                 cc_env.max_euc_dist, "NO_LOCATION", "NO_ANGLE", "ALL")
+            lm_util.delete_data(fcore_vw, tcore_vw)
 
             # Join near table to core table
             arcpy.JoinField_management(near_tbl, "IN_FID", corefc,
