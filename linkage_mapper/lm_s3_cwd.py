@@ -130,9 +130,6 @@ def STEP3_calc_cwds():
                 lu.make_raster_paths(int(max(coresToMap)), cfg.CWDBASEDIR,
                                      cfg.CWDSUBDIR_NM)
 
-        # make a feature layer for input cores to select from
-        arcpy.MakeFeatureLayer_management(cfg.COREFC, cfg.FCORES)
-
         # Drop links that are too long
         gprint('\nChecking for corridors that are too long to map.')
         DISABLE_LEAST_COST_NO_VAL = False
@@ -233,11 +230,6 @@ def STEP3_calc_cwds():
             # If not using bounding circles, just go with resistance raster
             bound_resis = cfg.RESRAST
 
-        # ---------------------------------------------------------------------
-        # Rasterize core areas to speed cost distance calcs
-        gprint("Creating core area raster.")
-
-        arcpy.SelectLayerByAttribute_management(cfg.FCORES, "CLEAR_SELECTION")
 
         arcpy.env.cellSize = bound_resis
         arcpy.env.extent = bound_resis
