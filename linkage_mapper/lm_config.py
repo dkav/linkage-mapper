@@ -428,12 +428,14 @@ def config_circuitscape(config, arg):
     config.SAVECENTRALITYDIR = False
 
 
-def check_out_sa_license():
-    """Check out the ArcGIS Spatial Analyst extension license."""
+def set_up_arc_env(config):
+    """Set up Arcpy environment."""
     if arcpy.CheckExtension("Spatial") == "Available":
         arcpy.CheckOutExtension("Spatial")
     else:
         raise RuntimeError("Spatial Analyst license is unavailable")
+    arcpy.ResetEnvironments()
+    arcpy.env.overwriteOutput = True
 
 
 class Configure(object):
@@ -451,11 +453,7 @@ class Configure(object):
 
     def configure(self, tool, arg):
         """Assign variables for Configure class."""
-        check_out_sa_license()
-        arcpy.ResetEnvironments()
-        arcpy.env.overwriteOutput = True
         config_global(self, arg)
-
         if tool == Configure.TOOL_LM:
             config_lm(self, arg)
         elif tool == Configure.TOOL_CC:
@@ -469,6 +467,7 @@ class Configure(object):
         else:
             raise RuntimeError('Undefined tool to configure')
         self.TOOL = tool
+        set_up_arc_env(self)
 
 
 tool_env = Configure()  # Class instance that is use by tool modules
