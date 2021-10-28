@@ -399,17 +399,21 @@ def create_lnk_tbl(corefc, core_pairs, frm_cores):
 
         coreid_fld = arcpy.AddFieldDelimiters(corefc, cc_env.core_fld)
         oid_fld = arcpy.Describe(corefc).oidFieldName
+        arcpy.MakeFeatureLayer_management(corefc, fcore_vw)
+        arcpy.MakeFeatureLayer_management(corefc, tcore_vw)
 
         for core_no, frm_core in enumerate(frm_cores):
             # From cores
             expression = coreid_fld + " = " + frm_core
-            arcpy.MakeFeatureLayer_management(corefc, fcore_vw, expression)
+            arcpy.SelectLayerByAttribute_management(
+                fcore_vw, "NEW_SELECTION", expression)
 
             # To cores
             to_cores_lst = [x[1] for x in core_pairs if frm_core == x[0]]
             to_cores = ', '.join(to_cores_lst)
             expression = coreid_fld + " in (" + to_cores + ")"
-            arcpy.MakeFeatureLayer_management(corefc, tcore_vw, expression)
+            arcpy.SelectLayerByAttribute_management(
+                tcore_vw, "NEW_SELECTION", expression)
 
             lm_util.gprint("Calculating Euclidean distance/s from Core " +
                            frm_core + " to " + str(len(to_cores_lst)) +
@@ -420,7 +424,6 @@ def create_lnk_tbl(corefc, core_pairs, frm_cores):
             arcpy.GenerateNearTable_analysis(
                 fcore_vw, tcore_vw, near_tbl,
                 cc_env.max_euc_dist, "NO_LOCATION", "NO_ANGLE", "ALL")
-            lm_util.delete_data(fcore_vw, tcore_vw)
 
             # Join near table to core table
             arcpy.JoinField_management(near_tbl, "IN_FID", corefc,
@@ -449,6 +452,8 @@ def create_lnk_tbl(corefc, core_pairs, frm_cores):
                     core_list.add(to_coreid)
                     srow = next(srows)
                     i += 1
+
+        lm_util.delete_data(fcore_vw, tcore_vw)
 
     except Exception:
         raise

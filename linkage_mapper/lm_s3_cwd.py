@@ -489,6 +489,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
 
         # ---------------------------------------------------------
         # Check for intermediate cores AND map LCP lines
+        arcpy.MakeFeatureLayer_management(cfg.COREFC, cfg.FCORES)
         for y in range(0,len(targetCores)):
             targetCore = targetCores[y]
             rows = lu.get_links_from_core_pairs(linkTable, sourceCore,
@@ -554,8 +555,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                     # core area. Method below is faster than valuelist
                     # method because of soma in valuelist method.
                     # make a feature layer for input cores to select from
-                    arcpy.MakeFeatureLayer_management(cfg.COREFC, cfg.FCORES)
-
                     arcpy.SelectLayerByAttribute_management(cfg.FCORES,
                                               "NEW_SELECTION",
                                               cfg.COREFN + ' <> ' +
@@ -570,7 +569,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                     arcpy.FeatureToRaster_conversion(
                             cfg.FCORES, cfg.COREFN,
                             corePairRas, arcpy.env.cellSize)
-                    lu.delete_data(cfg.FCORES)
 
                     # ------------------------------------------
                     # Intermediate core test
@@ -598,6 +596,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
 
         # Made it through, so return.
         lu.delete_dir(coreDir)
+        lu.delete_data(cfg.FCORES)
         return linkTable, lcpLoop
 
     # Return GEOPROCESSING specific errors
