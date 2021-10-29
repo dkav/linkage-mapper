@@ -94,8 +94,6 @@ def config_global(config, arg):
     # Write voltage maps from pinchpoint analysis
     config.WRITE_VOLT_MAPS = False
 
-    config.FCORES = "fcores"
-
     config.OUTPUTGDB = path.join(config.OUTPUTDIR, "corridors.gdb")
     config.EXTRAGDB = path.join(config.OUTPUTDIR, "extra.gdb")
     config.CWDGDB = path.join(config.OUTPUTDIR, "cwd.gdb")
