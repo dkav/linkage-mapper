@@ -490,6 +490,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         # ---------------------------------------------------------
         # Check for intermediate cores AND map LCP lines
         arcpy.MakeFeatureLayer_management(cfg.COREFC, cfg.FCORES)
+        core_pair_ras = path.join(cfg.ARCSCRATCHDIR, 'corepair')
         for y in range(0,len(targetCores)):
             targetCore = targetCores[y]
             rows = lu.get_links_from_core_pairs(linkTable, sourceCore,
@@ -563,17 +564,16 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                                               ' <> ' +
                                               str(int(sourceCore)))
 
-                    corePairRas = path.join(coreDir, "s3corepair")
                     arcpy.env.extent = bound_resis
 
                     arcpy.FeatureToRaster_conversion(
                             cfg.FCORES, cfg.COREFN,
-                            corePairRas, arcpy.env.cellSize)
+                            core_pair_ras, arcpy.env.cellSize)
 
                     # ------------------------------------------
                     # Intermediate core test
                     coreDetected = test_for_intermediate_core(
-                            coreDir, lcpRas, corePairRas)
+                            coreDir, lcpRas, core_pair_ras)
 
                     if coreDetected:
                         gprint(
