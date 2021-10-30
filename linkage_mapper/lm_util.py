@@ -996,9 +996,10 @@ def log_rast_info(rast_lyr):
 
 
 def close_log_file():
-    timeNow = time.ctime()
+    stop_time = dt.now()
     try:
-        write_log('\nStop time:\t\t%s \n\n' % (timeNow))
+        write_log('\nStop time:\t\t{} \n\n'.format(
+            stop_time.strftime("%H:%M %Y-%m-%d")))
     except Exception:
         pass
 
