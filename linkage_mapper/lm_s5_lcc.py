@@ -160,11 +160,11 @@ def calc_lccs(normalize):
             cwdRaster2 = lu.get_cwd_path(corey)
 
             if not arcpy.Exists(cwdRaster1):
-                msg =('\nError: cannot find cwd raster:\n' + cwdRaster1)
+                lu.raise_error(
+                    '\nError: cannot find cwd raster:\n' + cwdRaster1)
             if not arcpy.Exists(cwdRaster2):
-                msg =('\nError: cannot find cwd raster:\n' + cwdRaster2)
-                lu.raise_error(msg)
-
+                lu.raise_error(
+                    '\nError: cannot find cwd raster:\n' + cwdRaster2)
 
             lccNormRaster = path.join(clccdir, str(corex) + "_" +
                                       str(corey))# + ".tif")
