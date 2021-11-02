@@ -19,8 +19,6 @@ except ImportError:
     from time import clock as perf_counter
 
 import numpy as npy
-import arcpy
-
 from lm_config import tool_env as cfg
 import lm_util as lu
 
@@ -38,7 +36,6 @@ def STEP4_refine_network():
 
         lu.dashline(1)
         gprint('Running script ' + _SCRIPT_NAME)
-        arcpy.env.workspace = cfg.OUTPUTDIR
 
         linkTableFile = lu.get_prev_step_link_table(step=4)
 
@@ -217,11 +214,6 @@ def STEP4_refine_network():
             lu.write_link_maps(outlinkTableFile, step=4)
         except Exception:
             lu.write_link_maps(outlinkTableFile, step=4)
-
-    # Return GEOPROCESSING specific errors
-    except arcpy.ExecuteError:
-        gprint('****Failed in step 4. Details follow.****')
-        lu.exit_with_geoproc_error(_SCRIPT_NAME)
 
     # Return any PYTHON or system specific errors
     except Exception:
