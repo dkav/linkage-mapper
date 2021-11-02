@@ -64,11 +64,13 @@ def calc_lccs(normalize):
             writeTruncRaster = cfg.WRITETRUNCRASTER
             outputGDB = cfg.OUTPUTGDB
             SAVENORMLCCS = cfg.SAVENORMLCCS
+            printText = "Normalized and mosaicked "
         else:
             mosaicBaseName = "_NON_NORMALIZED_corridors"
             SAVENORMLCCS = False
             outputGDB = cfg.EXTRAGDB
             writeTruncRaster = False
+            printText = "Mosaicked NON-normalized "
 
         lu.dashline(1)
         gprint('Running script ' + _SCRIPT_NAME)
@@ -179,15 +181,9 @@ def calc_lccs(normalize):
             if normalize:
                 outras = (arcpy.sa.Raster(cwdRaster1) +
                           arcpy.sa.Raster(cwdRaster2) - lcDist)
-                outras.save(lccNormRaster)
-            else:
-                outras = (
-                    arcpy.sa.Raster(cwdRaster1) + arcpy.sa.Raster(cwdRaster2))
-                outras.save(lccNormRaster)
 
-            if normalize:
                 try:
-                    minObject = arcpy.GetRasterProperties_management(lccNormRaster, "MINIMUM")
+                    minObject = arcpy.GetRasterProperties_management(outras, "MINIMUM")
                     rasterMin = float(str(minObject.getOutput(0)))
                 except Exception:
                     lu.warn('\n------------------------------------------------')
@@ -205,6 +201,10 @@ def calc_lccs(normalize):
                            'bounding circle, or that a corridor passed outside of the '
                            'resistance map. \n')
                     lu.warn(msg)
+            else:
+                outRas = (
+                    arcpy.sa.Raster(cwdRaster1) + arcpy.sa.Raster(cwdRaster2))
+            outras.save(lccNormRaster)
 
             arcpy.env.extent = cfg.RESRAST
 
@@ -229,11 +229,6 @@ def calc_lccs(normalize):
 
             endTime = perf_counter()
             processTime = round((endTime - start_time), 2)
-
-            if normalize == True:
-                printText = "Normalized and mosaicked "
-            else:
-                printText = "Mosaicked NON-normalized "
             gprint(printText + "corridor for link ID #" + str(linkId) +
                     " connecting core areas " + str(corex) +
                     " and " + str(corey)+ " in " +
