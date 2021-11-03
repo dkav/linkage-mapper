@@ -489,10 +489,10 @@ def main(argv=None):
             else:
                 arcpy.Append_management(circle_fc, all_circles_fc, "TEST")
             gprint('Finished iteration #' + str(cur_iter))
-            start_time1 = lu.elapsed_time(start_time1)
+            lu.print_elapsed_time(start_time1)
 
         gprint('\nDone with iterations.')
-        start_time = lu.elapsed_time(start_time)
+        lu.print_elapsed_time(start_time)
         gprint('Outputs saved in: ' + output_gdb)
         gprint('Back up your project directories if you want to save '
                'corridor/barrier results.')

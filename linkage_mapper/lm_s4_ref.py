@@ -207,7 +207,7 @@ def STEP4_refine_network():
 
         start_time = perf_counter()
         lu.update_lcp_shapefile(linkTable, lastStep=3, thisStep=4)
-        start_time = lu.elapsed_time(start_time)
+        lu.print_elapsed_time(start_time)
 
         gprint('Creating shapefiles with linework for links.')
         try:

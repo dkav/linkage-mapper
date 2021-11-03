@@ -155,7 +155,7 @@ def STEP3_calc_cwds():
                     cfg.COREFC, cfg.COREFN, core)
                 extentBoxList = npy.append(extentBoxList, boxCoords, axis=0)
             gprint('\nDone calculating bounding boxes.')
-            start_time = lu.elapsed_time(start_time)
+            lu.print_elapsed_time(start_time)
 
             # Create bounding circles
             # -----------------------
@@ -210,7 +210,7 @@ def STEP3_calc_cwds():
             gprint('Successfully created bounding circles around '
                               'potential corridors using \na buffer of ' +
                               str(float(cfg.BUFFERDIST)) + ' map units.')
-            start_time = lu.elapsed_time(start_time)
+            lu.print_elapsed_time(start_time)
 
             gprint('Reducing global processing area using bounding '
                               'circle plus buffer of ' +
@@ -271,7 +271,7 @@ def STEP3_calc_cwds():
             gprint('Done with all calculations for core ID #' +
                     str(sourceCore) + '. ' + str(int(x + 1)) + ' of ' +
                     str(endIndex) + ' cores have been processed.')
-            start_time = lu.elapsed_time(startTime1)
+            lu.print_elapsed_time(startTime1)
 
             lu.write_link_table(linkTableMod, tmp_lnktbl_s3_partial)
             # Increment  loop counter
@@ -305,7 +305,7 @@ def STEP3_calc_cwds():
             lu.write_link_maps(outlinkTableFile, step=3)
         except Exception:
             lu.write_link_maps(outlinkTableFile, step=3)
-        start_time = lu.elapsed_time(start_time)
+        lu.print_elapsed_time(start_time)
 
         gprint('\nIndividual cost-weighted distance layers written '
                           'to "cwd" directory. \n')

@@ -533,7 +533,7 @@ def step6_calc_barriers():
                               + sum_suffix + "_Rad"
                               + str(outer_radius))
                 arcpy.CopyRaster_management(out_ras2, out_ras_fn)
-            start_time = lu.elapsed_time(start_time)
+            lu.print_elapsed_time(start_time)
 
         # Combine rasters across radii
         gprint('\nCreating summary rasters...')

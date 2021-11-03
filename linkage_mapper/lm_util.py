@@ -325,8 +325,8 @@ def run_time(stime):
         hours, minutes, seconds))
 
 
-def elapsed_time(start_time):
-    """Print elapsed time given a start time and return a new start time."""
+def print_elapsed_time(start_time):
+    """Print elapsed time given a start time."""
     now = perf_counter()
     hours, minutes, seconds = s2hhmmss(now - start_time)
     msg = "Task took:"
@@ -338,7 +338,6 @@ def elapsed_time(start_time):
     else:
         gprint("{} {} hours and {} minutes and {} seconds.\n".format(
             msg, hours, minutes, seconds))
-    return now
 
 
 def report_pct_done(current, goal, last):

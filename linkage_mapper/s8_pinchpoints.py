@@ -337,7 +337,7 @@ def STEP8_calc_pinchpoints():
                 gprint('Finished with link ID #' + str(linkId) + '. ' +
                         str(linkLoop) + ' out of ' + str(numCorridorLinks) +
                         ' links have been processed.')
-                start_time1 = lu.elapsed_time(start_time1)
+                lu.print_elapsed_time(start_time1)
 
             outputRaster = path.join(outputGDB, cfg.PREFIX +
                                      "_current_adjacentPairs_" + cutoffText)

@@ -108,7 +108,7 @@ def cwadjacency(bnd_cir=None):
             bResistance = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
             gprint('\nReduced resistance raster extracted using '
                               'bounding circle.')
-            start_time = lu.elapsed_time(start_time)
+            lu.print_elapsed_time(start_time)
         else:
             bResistance = cfg.RESRAST
 
@@ -141,7 +141,7 @@ def cwadjacency(bnd_cir=None):
         lu.build_stats(outDistanceRaster)
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         gprint('Cost-weighted distance allocation done.')
-        start_time = lu.elapsed_time(start_time)
+        lu.print_elapsed_time(start_time)
         adjshiftwrite(alloc_ras, outcsvfile, outcsvLogfile)
 
     # Return GEOPROCESSING specific errors
@@ -190,7 +190,7 @@ def euadjacency(bnd_cir=None):
 
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         gprint('\nEuclidean distance allocation done.')
-        start_time = lu.elapsed_time(start_time)
+        lu.print_elapsed_time(start_time)
         arcpy.env.extent = oldextent
         adjshiftwrite(alloc_ras, outcsvfile, outcsvLogfile)
 
@@ -247,7 +247,7 @@ def get_adj_using_shift_method(alloc):
     arcpy.Shift_management(alloc, "alloc_u", "0", posShift)
     adjTable_u = get_allocs_from_shift(alloc, "alloc_u")
 
-    lu.elapsed_time(start_time)
+    lu.print_elapsed_time(start_time)
 
     adjTable = combine_adjacency_tables(adjTable_r, adjTable_u, adjTable_ur,
                                         adjTable_ul)
