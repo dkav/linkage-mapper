@@ -387,7 +387,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
             arcpy.MakeFeatureLayer_management(
                 path.join(cfg.SCRATCHDIR, BNDCIRS), "fGlobalBoundingFeat")
 
-            start_time = perf_counter()
             # loop through targets and get bounding circles that
             # contain focal core and target cores
             arcpy.SelectLayerByAttribute_management(
@@ -435,7 +434,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         else:
             back_rast = "BACK"
             lu.delete_data(path.join(coreDir, back_rast), outDistanceRaster)
-            start_time = perf_counter()
 
             # Create raster that just has source core in it
             # Note: this seems faster than setnull with LI grid.
@@ -452,7 +450,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                     SRCRASTER, bResistance, cfg.TMAXCWDIST, back_rast)
             outCostDist.save(outDistanceRaster)
 
-        start_time = perf_counter()
         # Extract cost distances from source core to target cores
         # FIXME: there will be redundant calls to b-a when already
         # done a-b
