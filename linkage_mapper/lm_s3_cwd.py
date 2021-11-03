@@ -378,53 +378,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         gprint('Target core areas for core area #' +
                           str(sourceCore) + ' = ' + str(targetCores))
 
-        # -------------------------------------------------------------
-        # Create BOUNDING FEATURE to limit extent of cost distance
-        # calculations-This is a set of circles encompassing core areas
-        # we'll be connecting each core area to.
-        if cfg.BUFFERDIST is not None:
-            # FIXME: move outside of loop   # new circle
-            arcpy.MakeFeatureLayer_management(
-                path.join(cfg.SCRATCHDIR, BNDCIRS), "fGlobalBoundingFeat")
-
-            # loop through targets and get bounding circles that
-            # contain focal core and target cores
-            arcpy.SelectLayerByAttribute_management(
-                "fGlobalBoundingFeat", "CLEAR_SELECTION")
-            for i in range(len(targetCores)):
-                # run thru circleList, find link that core pair
-                # corresponds to.
-                if sourceCore < targetCores[i]:
-                    corex = sourceCore
-                    corey = targetCores[i]
-                else:
-                    corey = sourceCore
-                    corex = targetCores[i]
-
-                cores_x_y = str(int(corex))+'_'+str(int(corey))
-                field = "cores_x_y"
-                # FIXME: need to check for case where link is not found
-                arcpy.SelectLayerByAttribute_management(
-                    "fGlobalBoundingFeat", "ADD_TO_SELECTION", field +
-                    " = '" + cores_x_y + "'")
-
-            lu.delete_data(path.join(coreDir,BNDFC))
-            # FIXME: may not be needed- can we just clip raster
-            # using selected?
-            arcpy.CopyFeatures_management("fGlobalBoundingFeat",
-                                           BNDFC)
-            lu.delete_data('fGlobalBoundingFeat')
-
-            # Clip out bounded area of resistance raster for cwd
-            # calculations from focal core
-            bResistance = path.join(coreDir,"bResistance") # Can't be tif-
-                                                           # need STA for CWD
-            lu.delete_data(bResistance)
-            bnd_resis = arcpy.sa.ExtractByMask(bound_resis, BNDFC)
-            bnd_resis.save(bResistance)
-
-        else:
-            bResistance = bound_resis
         # ---------------------------------------------------------
         # CWD Calculations
         outDistanceRaster = lu.get_cwd_path(sourceCore)
@@ -446,8 +399,15 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
             # Cost distance raster creation
             arcpy.env.extent = "MINOF"
             lu.delete_data(path.join(coreDir, "BACK"))
-            outCostDist = arcpy.sa.CostDistance(
-                    SRCRASTER, bResistance, cfg.TMAXCWDIST, back_rast)
+
+            if cfg.BUFFERDIST is not None:
+                bnd_resis = create_bounding_feature(
+                    sourceCore, targetCores, bound_resis)
+                outCostDist = arcpy.sa.CostDistance(
+                    conRaster, bnd_resis, cfg.TMAXCWDIST, back_rast)
+            else:
+                outCostDist = arcpy.sa.CostDistance(
+                    conRaster, bound_resis, cfg.TMAXCWDIST, back_rast)
             outCostDist.save(outDistanceRaster)
 
         # Extract cost distances from source core to target cores
@@ -606,6 +566,47 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
     except Exception:
         lu.dashline(1)
         lu.exit_with_python_error(_SCRIPT_NAME)
+
+
+def create_bounding_feature(src_core, targ_cores, bnd_resistance):
+    """Create bounding feature to limit extent of cost distance.
+
+    This is a set of circles encompassing core areas we'll be
+    connecting each core area to.
+    """
+    # FIXME: move outside of loop   # new circle
+    arcpy.MakeFeatureLayer_management(
+        path.join(cfg.SCRATCHDIR, BNDCIRS), "fGlobalBoundingFeat")
+
+    # loop through targets and get bounding circles that
+    # contain focal core and target cores
+    arcpy.SelectLayerByAttribute_management(
+        "fGlobalBoundingFeat", "CLEAR_SELECTION")
+    for targ_core in targ_cores:
+        # run thru circleList, find link that core pair
+        # corresponds to.
+        if src_core < targ_core:
+            corex = src_core
+            corey = targ_core
+        else:
+            corey = src_core
+            corex = targ_core
+
+        cores_x_y = str(int(corex))+'_'+str(int(corey))
+        field = "cores_x_y"
+        # FIXME: need to check for case where link is not found
+        arcpy.SelectLayerByAttribute_management(
+            "fGlobalBoundingFeat", "ADD_TO_SELECTION", field +
+            " = '" + cores_x_y + "'")
+
+    # FIXME: may not be needed- can we just clip raster
+    # using selected?
+    arcpy.CopyFeatures_management("fGlobalBoundingFeat", BNDFC)
+    lu.delete_data('fGlobalBoundingFeat')
+    # Clip out bounded area of resistance raster for cwd
+    # calculations from focal core
+    bounding_feat = arcpy.sa.ExtractByMask(bnd_resistance, BNDFC)
+    return bounding_feat
 
 
 def test_for_intermediate_core(workspace,lcpRas,corePairRas):
