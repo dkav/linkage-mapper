@@ -146,7 +146,6 @@ def run_lm():
         delete_final_gdb(cfg.EXTRAGDB)
         delete_final_gdb(cfg.LINKMAPGDB)
 
-
         # Run linkage mapper processing steps
         if cfg.STEP1:
             s1.STEP1_get_adjacencies()

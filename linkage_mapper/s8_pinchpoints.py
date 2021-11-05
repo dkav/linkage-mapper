@@ -346,7 +346,7 @@ def STEP8_calc_pinchpoints():
             arcpy.CopyRaster_management(mosaicRaster, outputRaster)
 
             gprint('Building output statistics and pyramids '
-                                  'for corridor pinch point raster\n')
+                   'for corridor pinch point raster\n')
             lu.build_stats(outputRaster)
 
             finalLinkTable = lu.update_lcp_shapefile(linkTable, lastStep=5,
@@ -541,6 +541,7 @@ def export_ras_to_npy(raster,npyFile):
     del outData
 
     return numElements, numNodes
+
 
 def import_npy_to_ras(npyFile,baseRaster,outRasterPath):
     npyArray = npy.load(npyFile, mmap_mode=None)

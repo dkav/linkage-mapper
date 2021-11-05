@@ -39,7 +39,7 @@ def STEP1_get_adjacencies():
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         arcpy.env.workspace = cfg.PROJECTDIR
 
-        #remove adj directory and files from previous runs
+        # Remove adj directory and files from previous runs
         lu.delete_dir(cfg.ADJACENCYDIR)
         lu.delete_file(cfg.CWDADJFILE)
         lu.delete_file(cfg.EUCADJFILE)
@@ -51,7 +51,7 @@ def STEP1_get_adjacencies():
         lu.create_dir(cfg.ADJACENCYDIR)
 
         gprint('Adjacency files will be written to ' +
-                          cfg.ADJACENCYDIR)
+                cfg.ADJACENCYDIR)
 
         arcpy.env.pyramid = "NONE"
         arcpy.env.rasterStatistics = "NONE"
@@ -107,7 +107,7 @@ def cwadjacency(bnd_cir=None):
             arcpy.env.extent = arcpy.Describe(cfg.RESRAST).Extent
             bResistance = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
             gprint('\nReduced resistance raster extracted using '
-                              'bounding circle.')
+                   'bounding circle.')
             lu.print_elapsed_time(start_time)
         else:
             bResistance = cfg.RESRAST
@@ -197,7 +197,7 @@ def euadjacency(bnd_cir=None):
         # Clean up
         lu.delete_data(outDistanceRaster)
 
-     # Return GEOPROCESSING specific errors
+    # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
         lu.dashline(1)
         gprint('****Failed in step 1. Details follow.****')

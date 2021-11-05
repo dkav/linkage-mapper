@@ -35,14 +35,12 @@ def STEP2_build_network():
         gprint('Running script ' + _SCRIPT_NAME)
         outlinkTableFile = lu.get_this_step_link_table(step=2)
 
-        # ------------------------------------------------------------------
         # adjacency file created from lm_s1_adj.py
         if cfg.S2ADJMETH_EU and not path.exists(cfg.EUCADJFILE):
             msg = ('\nERROR: Euclidean adjacency file required from '
                   'Step 1: ' + cfg.EUCADJFILE)
             lu.raise_error(msg)
 
-        # ------------------------------------------------------------------
         # adjacency file created from lm_s1_adj.py
         if cfg.S2ADJMETH_CW and not path.exists(cfg.CWDADJFILE):
             msg = ('\nERROR: Cost-weighted adjacency file required from'

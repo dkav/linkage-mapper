@@ -69,7 +69,7 @@ def STEP3_calc_cwds():
         # set the analysis extent and cell size
         # So we don't extract rasters that go beyond extent of original raster
         arcpy.env.cellSize = cfg.RESRAST
-        arcpy.env.extent="MINOF"
+        arcpy.env.extent = "MINOF"
         arcpy.mask = cfg.RESRAST
         arcpy.env.workspace = cfg.SCRATCHDIR
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
@@ -122,7 +122,6 @@ def STEP3_calc_cwds():
             else:
                 rerun = True
 
-        # If picking up a failed run, use old folders
         if not rerun:
             startIndex = 0
             if cfg.TOOL != cfg.TOOL_CC:
@@ -221,7 +220,7 @@ def STEP3_calc_cwds():
             bound_resis = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
             bound_resis.save(BOUNDRESIS)
             gprint('\nReduced resistance raster extracted using '
-                              'bounding circle.')
+                   'bounding circle.')
 
         else:
             if cfg.TOOL != cfg.TOOL_CC:
@@ -277,7 +276,6 @@ def STEP3_calc_cwds():
             # Increment  loop counter
             x = x + 1
         #----------------------------------------------------------------------
-
         linkTable = linkTableMod
 
         # reinstate temporarily disabled links
@@ -350,7 +348,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         coreDir = path.join(cfg.SCRATCHDIR, 'core' + str(sourceCore))
         lu.delete_dir(coreDir)
         lu.create_dir(coreDir)
-
         arcpy.env.workspace = coreDir
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         arcpy.env.extent = "MINOF"
@@ -416,8 +413,8 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         ZNSTATS = path.join(coreDir, "zonestats.dbf")
         lu.delete_data(ZNSTATS)
         # FIXME: zonalstatistics is returning integer values for minimum. Why???
-        #Extra zonalstatistics code implemented later in script to correct
-        #values.
+        # Extra zonalstatistics code implemented later in script to correct
+        # values.
         outZSaT = arcpy.sa.ZonalStatisticsAsTable(
                 cfg.CORERAS, "VALUE", outDistanceRaster,
                 ZNSTATS, "DATA", "MINIMUM")
@@ -523,7 +520,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                                               str(int(sourceCore)))
 
                     arcpy.env.extent = bound_resis
-
                     arcpy.FeatureToRaster_conversion(
                             fcores, cfg.COREFN,
                             core_pair_ras, arcpy.env.cellSize)
@@ -552,7 +548,6 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                 lcpLoop = create_lcp_shapefile(
                     linkTable, sourceCore, targetCore, lcpRas, lcpLoop)
 
-        # Made it through, so return.
         lu.delete_dir(coreDir)
         lu.delete_data(fcores)
         return linkTable, lcpLoop

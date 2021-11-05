@@ -67,9 +67,9 @@ def calc_lccs(normalize):
             printText = "Normalized and mosaicked "
         else:
             mosaicBaseName = "_NON_NORMALIZED_corridors"
-            SAVENORMLCCS = False
-            outputGDB = cfg.EXTRAGDB
             writeTruncRaster = False
+            outputGDB = cfg.EXTRAGDB
+            SAVENORMLCCS = False
             printText = "Mosaicked NON-normalized "
 
         lu.dashline(1)
@@ -208,13 +208,13 @@ def calc_lccs(normalize):
 
             arcpy.env.extent = cfg.RESRAST
 
-            mosaicDir = path.join(cfg.LCCBASEDIR,'mos'+str(x+1))
+            mosaicDir = path.join(cfg.LCCBASEDIR, 'mos'+str(x+1))
             lu.create_dir(mosaicDir)
-            mosFN = 'mos'#.tif' change and move
-            mosaicRaster = path.join(mosaicDir,mosFN)
+            mosFN = 'mos'
+            mosaicRaster = path.join(mosaicDir, mosFN)
 
             if numGridsWritten == 0 and dirCount == 0:
-                #If this is the first grid then copy rather than mosaic
+                # If this is the first grid then copy rather than mosaic
                 arcpy.CopyRaster_management(lccNormRaster, mosaicRaster)
             else:
                 lu.write_log('Executing mosaic for link #'+str(linkId))
