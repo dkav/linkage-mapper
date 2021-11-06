@@ -42,8 +42,6 @@ def STEP8_calc_pinchpoints():
 
         outputGDB = path.join(cfg.OUTPUTDIR, path.basename(cfg.PINCHGDB))
 
-        arcpy.env.workspace = cfg.SCRATCHDIR
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         arcpy.env.pyramid = "NONE"
         arcpy.env.rasterStatistics = "NONE"
 
@@ -123,8 +121,6 @@ def STEP8_calc_pinchpoints():
         if cfg.SQUARERESISTANCES:
             # Square resistance values
             squaredRaster = path.join(cfg.SCRATCHDIR,'res_sqr')
-            arcpy.env.workspace = cfg.SCRATCHDIR
-            arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
             outRas = arcpy.sa.Raster(resRaster) * arcpy.sa.Raster(resRaster)
             outRas.save(squaredRaster)
             resRaster = squaredRaster
@@ -385,8 +381,7 @@ def STEP8_calc_pinchpoints():
 
         else:
             gprint('Circuitscape will be run in ALL-TO-ONE mode.')
-        arcpy.env.workspace = cfg.SCRATCHDIR
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
+
         arcpy.env.extent = cfg.RESRAST
         arcpy.env.cellSize = cfg.RESRAST
 

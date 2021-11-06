@@ -6,6 +6,7 @@ cost-weighted distance space
 """
 
 from os import path
+import shutil
 
 # Add support for Python 2. Try to import Python 3 modules first.
 try:
@@ -34,11 +35,6 @@ def STEP1_get_adjacencies():
         lu.dashline(1)
         gprint('Running script ' + _SCRIPT_NAME)
 
-        # Default behavior is to use same cell size as resistance raster,
-        # but this can be changed here.
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
-        arcpy.env.workspace = cfg.PROJECTDIR
-
         # Remove adj directory and files from previous runs
         lu.delete_dir(cfg.ADJACENCYDIR)
         lu.delete_file(cfg.CWDADJFILE)
@@ -49,19 +45,19 @@ def STEP1_get_adjacencies():
             return
 
         lu.create_dir(cfg.ADJACENCYDIR)
+        wrk_sp = lu.set_scratch_wksp('step1')
 
         gprint('Adjacency files will be written to ' +
                 cfg.ADJACENCYDIR)
 
         arcpy.env.pyramid = "NONE"
         arcpy.env.rasterStatistics = "NONE"
-        arcpy.env.workspace = cfg.SCRATCHDIR
 
         if cfg.BUFFERDIST is not None:
             gprint('Reducing processing area using bounding circle '
                    'plus buffer of ' +
                    str(float(cfg.BUFFERDIST)) + ' map units')
-            bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST)
+            bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST, wrk_sp)
         else:
             bnd_cir = None
 
@@ -69,6 +65,9 @@ def STEP1_get_adjacencies():
             cwadjacency(bnd_cir)
         if cfg.S1ADJMETH_EU:
             euadjacency(bnd_cir)
+
+        lu.del_keep_inter_data(bnd_cir)
+        lu.del_keep_inter_dir(wrk_sp)
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -87,9 +86,6 @@ def STEP1_get_adjacencies():
 def cwadjacency(bnd_cir=None):
     """Calculate cost-weighted adjacency."""
     try:
-        ALLOC_RASFN = "CWD_alloc_ras"
-
-
         gprint('\nCalculating cost-weighted distance adjacency')
         PREFIX = cfg.PREFIX
 
@@ -120,15 +116,9 @@ def cwadjacency(bnd_cir=None):
         arcpy.env.extent = "MAXOF"
         gprint('Processing cell size: ' + arcpy.env.cellSize)
 
-        arcpy.env.workspace = cfg.ADJACENCYDIR
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
-
-        lu.delete_data(cfg.CWDGDB)
-        if not arcpy.Exists(cfg.CWDGDB):
-            arcpy.CreateFileGDB_management(cfg.OUTPUTDIR, path.basename(cfg.CWDGDB))
+        arcpy.CreateFileGDB_management(cfg.OUTPUTDIR, path.basename(cfg.CWDGDB))
         outDistanceRaster = path.join(cfg.CWDGDB, PREFIX + "_cwd")
-        alloc_ras = path.join(cfg.ADJACENCYDIR, ALLOC_RASFN)
-        lu.delete_data(alloc_ras, outDistanceRaster)
+        alloc_ras = path.join(cfg.ADJACENCYDIR, 'CWD_alloc_ras')
 
         costAllocOut = arcpy.sa.CostAllocation(
                 cfg.CORERAS, bResistance, cfg.TMAXCWDIST,
@@ -137,10 +127,9 @@ def cwadjacency(bnd_cir=None):
 
         gprint('\nBuilding output statistics and pyramids for CWD raster.')
         lu.build_stats(outDistanceRaster)
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         gprint('Cost-weighted distance allocation done.')
         lu.print_elapsed_time(start_time)
-        adjshiftwrite(alloc_ras, cfg.CWDADJFILE)
+        adjshiftwrite(alloc_ras, cfg.CWDADJFILE, lu.set_scratch_wksp('step1\cwd'))
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -158,9 +147,9 @@ def cwadjacency(bnd_cir=None):
 def euadjacency(bnd_cir=None):
     """Calculate Euclidean adjacency."""
     try:
-        ALLOC_RASFN = "Euc_alloc_ras"
         lu.dashline()
         gprint('Calculating Euclidean adjacency')
+        wrk_space = lu.set_scratch_wksp('step1\euc')
 
         # ----------------------------------------------
         # Euclidean allocation code
@@ -174,24 +163,19 @@ def euadjacency(bnd_cir=None):
 
         start_time = perf_counter()
 
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
-        outDistanceRaster = path.join(cfg.ADJACENCYDIR, "euc")
-        alloc_ras = path.join(cfg.ADJACENCYDIR, ALLOC_RASFN)
-        lu.delete_data(alloc_ras, outDistanceRaster)
+        outDistanceRaster = path.join(wrk_space, 'euc')
+        alloc_ras = path.join(cfg.ADJACENCYDIR, 'Euc_alloc_ras')
 
         alloc_raster = arcpy.sa.EucAllocation(
                 cfg.CORERAS, "", "", cellSizeEuclidean, "",
                 outDistanceRaster, "")
         alloc_raster.save(alloc_ras)
+        lu.del_keep_inter_data(outDistanceRaster)
 
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         gprint('\nEuclidean distance allocation done.')
         lu.print_elapsed_time(start_time)
         arcpy.env.extent = oldextent
-        adjshiftwrite(alloc_ras, cfg.EUCADJFILE)
-
-        # Clean up
-        lu.delete_data(outDistanceRaster)
+        adjshiftwrite(alloc_ras, cfg.EUCADJFILE, wrk_space)
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -208,42 +192,45 @@ def euadjacency(bnd_cir=None):
         lu.exit_with_python_error(_SCRIPT_NAME)
 
 
-def adjshiftwrite(araster, csv_file):
+def adjshiftwrite(araster, csv_file, wrk_space):
     """Get adjacencies using shift method and write to disk"""
     # To be replaced by getLeastCostDistsUsingShiftMethod if implemented
-    adjTable = get_adj_using_shift_method(araster)
+    adjTable = get_adj_using_shift_method(araster, wrk_space)
     lu.write_adj_file(csv_file, adjTable)
     log_file = path.join(cfg.LOGDIR,
         path.splitext(path.basename(csv_file))[0] + '_step1.csv')
     shutil.copyfile(csv_file, log_file)
 
 
-def get_adj_using_shift_method(alloc):
+def get_adj_using_shift_method(alloc, wrk_space):
     """Returns table listing adjacent core areas using a shift method.
 
     The method involves shifting the allocation grid one pixel and then looking
     for pixels with different allocations across shifted grids.
 
     """
+    allocs = ['alloc_r', 'alloc_ul', 'alloc_ur', 'alloc_u']
+    alloc_r, alloc_ul, alloc_ur, alloc_u = (
+        path.join(wrk_space, x) for x in allocs)
+
     cellSize = arcpy.Describe(alloc).MeanCellHeight
     arcpy.env.cellSize = cellSize
 
     posShift = arcpy.env.cellSize
     negShift = -1 * float(arcpy.env.cellSize)
 
-    arcpy.env.workspace = cfg.SCRATCHDIR
-
     gprint('Calculating adjacencies crossing allocation boundaries...')
     start_time = time.clock()
 
-    arcpy.Shift_management(alloc, "alloc_r", posShift, "0")
-    adjTable_r = get_allocs_from_shift(alloc, "alloc_r")
-    arcpy.Shift_management(alloc, "alloc_ul", negShift, posShift)
-    adjTable_ul = get_allocs_from_shift(alloc, "alloc_ul")
-    arcpy.Shift_management(alloc, "alloc_ur", posShift, posShift)
-    adjTable_ur = get_allocs_from_shift(alloc, "alloc_ur")
-    arcpy.Shift_management(alloc, "alloc_u", "0", posShift)
-    adjTable_u = get_allocs_from_shift(alloc, "alloc_u")
+    arcpy.Shift_management(alloc, alloc_r, posShift, "0")
+    adjTable_r = get_allocs_from_shift(alloc, alloc_r)
+    arcpy.Shift_management(alloc, alloc_ul, negShift, posShift)
+    adjTable_ul = get_allocs_from_shift(alloc, alloc_ul)
+    arcpy.Shift_management(alloc, alloc_ur, posShift, posShift)
+    adjTable_ur = get_allocs_from_shift(alloc, alloc_ur)
+    arcpy.Shift_management(alloc, alloc_u, "0", posShift)
+    adjTable_u = get_allocs_from_shift(alloc, alloc_u)
+    lu.del_keep_inter_data(alloc_r, alloc_ul, alloc_ur, alloc_u)
 
     lu.print_elapsed_time(start_time)
 
@@ -256,9 +243,9 @@ def get_adj_using_shift_method(alloc):
 def get_allocs_from_shift(alloc, alloc_sh):
     """Returns a table of adjacent allocation zones using grid shift method"""
     try:
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         comb_ras = arcpy.sa.Combine([alloc, alloc_sh])
         allocLookupTable = get_alloc_lookup_table(comb_ras)
+        lu.del_keep_inter_rast(comb_ras, "comb_ras")
         return allocLookupTable[:, 1:3]
 
     except arcpy.ExecuteError:

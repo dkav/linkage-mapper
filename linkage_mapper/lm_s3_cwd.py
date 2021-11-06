@@ -65,14 +65,13 @@ def STEP3_calc_cwds():
         gprint('Running script ' + _SCRIPT_NAME)
         lu.dashline(0)
 
+        wrk_sp = lu.set_scratch_wksp("step3")
 
         # set the analysis extent and cell size
         # So we don't extract rasters that go beyond extent of original raster
         arcpy.env.cellSize = cfg.RESRAST
         arcpy.env.extent = "MINOF"
         arcpy.mask = cfg.RESRAST
-        arcpy.env.workspace = cfg.SCRATCHDIR
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
 
         # Load linkTable (created in previous script)
         linkTableFile = lu.get_prev_step_link_table(step=3)
@@ -201,9 +200,11 @@ def STEP3_calc_cwds():
             gprint('\nCreating bounding circles using buffer '
                               'analysis.')
 
-            lu.make_points(boundingCirclePointArray, BNDCIRCENS)
-            lu.delete_data(BNDCIRS)
-            arcpy.Buffer_analysis(BNDCIRCENS, BNDCIRS, "radius")
+
+            bnd_cir_cens = os.path.join(s3_wksp, BNDCIRCENS)
+            lu.make_points(boundingCirclePointArray, bnd_cir_cens)
+            arcpy.Buffer_analysis(bnd_cir_cens, BNDCIRS, "radius")
+            lu.del_keep_inter_data(bnd_cir_cens)
             arcpy.DeleteField_management(BNDCIRS, "BUFF_DIST")
 
             gprint('Successfully created bounding circles around '
@@ -214,11 +215,10 @@ def STEP3_calc_cwds():
             gprint('Reducing global processing area using bounding '
                               'circle plus buffer of ' +
                               str(float(cfg.BUFFERDIST)) + ' map units.\n')
-            bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST)
+            bnd_cir = lu.create_bnd_circle(cfg.COREFC, cfg.BUFFERDIST, wrk_sp)
             gprint('Extracting raster....')
-            lu.delete_data(BOUNDRESIS)
             bound_resis = arcpy.sa.ExtractByMask(cfg.RESRAST, bnd_cir)
-            bound_resis.save(BOUNDRESIS)
+            lu.del_keep_inter_data(bnd_cir)
             gprint('\nReduced resistance raster extracted using '
                    'bounding circle.')
 
@@ -276,6 +276,9 @@ def STEP3_calc_cwds():
             # Increment  loop counter
             x = x + 1
         #----------------------------------------------------------------------
+        if cfg.BUFFERDIST is not None:
+            lu.del_keep_inter_rast(bound_resis, BOUNDRESIS)
+        lu.del_keep_inter_data(BNDCIRS)
         linkTable = linkTableMod
 
         # reinstate temporarily disabled links
@@ -319,9 +322,10 @@ def STEP3_calc_cwds():
             coreList = npy.unique(linkTable[:, cfg.LTB_CORE1:cfg.LTB_CORE2 + 1])
             for core in coreList:
                 cwdRaster = lu.get_cwd_path(core)
-                back_rast = cwdRaster.replace("cwd_", "back_")
-                lu.delete_data(back_rast)
+                cc_back_rast = cwdRaster.replace("cwd_", "back_")
+                lu.delete_data(cc_back_rast)
 
+        lu.del_keep_inter_dir(wrk_sp)
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -344,12 +348,12 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         # This is the focal core area we're running cwd out from
         sourceCore = int(coresToMap[x])
 
-        # Create temporary scratch directory just this focal core
-        coreDir = path.join(cfg.SCRATCHDIR, 'core' + str(sourceCore))
-        lu.delete_dir(coreDir)
+        # Create temporary directory just this focal core
+        coreDir = path.join(arcpy.env.workspace, 'core' + str(sourceCore))
         lu.create_dir(coreDir)
+        s3_wksp = arcpy.env.workspace
         arcpy.env.workspace = coreDir
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
+
         arcpy.env.extent = "MINOF"
 
         write_cores_to_map(x, coresToMap, core_list_file)
@@ -382,20 +386,16 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
         if cfg.TOOL == cfg.TOOL_CC:
             back_rast = outDistanceRaster.replace("cwd_", "back_")
         else:
-            back_rast = "BACK"
-            lu.delete_data(path.join(coreDir, back_rast), outDistanceRaster)
+            back_rast = 'back'
 
             # Create raster that just has source core in it
             # Note: this seems faster than setnull with LI grid.
-            SRCRASTER = 'source'
-            lu.delete_data(path.join(coreDir, SRCRASTER))
             conRaster = arcpy.sa.Con(
                     arcpy.Raster(cfg.CORERAS) == int(sourceCore), 1)
-            conRaster.save(SRCRASTER)
+            lu.del_keep_inter_rast(conRaster, 'source')
 
             # Cost distance raster creation
             arcpy.env.extent = "MINOF"
-            lu.delete_data(path.join(coreDir, "BACK"))
 
             if cfg.BUFFERDIST is not None:
                 bnd_resis = create_bounding_feature(
@@ -405,13 +405,14 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
             else:
                 outCostDist = arcpy.sa.CostDistance(
                     conRaster, bound_resis, cfg.TMAXCWDIST, back_rast)
+            tmp_cwd_rast = str(outCostDist)
             outCostDist.save(outDistanceRaster)
+            lu.delete_data(tmp_cwd_rast)  # Arc not cleaning up after itself
 
         # Extract cost distances from source core to target cores
         # FIXME: there will be redundant calls to b-a when already
         # done a-b
-        ZNSTATS = path.join(coreDir, "zonestats.dbf")
-        lu.delete_data(ZNSTATS)
+        ZNSTATS = 'zonestats.dbf'
         # FIXME: zonalstatistics is returning integer values for minimum. Why???
         # Extra zonalstatistics code implemented later in script to correct
         # values.
@@ -440,6 +441,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                             linkTable[link,cfg.LTB_LINKTYPE] = cfg.LT_TSLC
             tableRow = next(tableRows)
         del tableRow, tableRows
+        lu.del_keep_inter_data(ZNSTATS)
 
         # ---------------------------------------------------------
         # Check for intermediate cores AND map LCP lines
@@ -462,41 +464,33 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                                                + 1000)
 
                 # Create raster that just has target core in it
-                TARGETRASTER = 'targ'
-                lu.delete_data(path.join(coreDir, TARGETRASTER))
-                conRaster = arcpy.sa.Con(
+                targ_rast = arcpy.sa.Con(
                         arcpy.sa.IsNull(outDistanceRaster),
                         arcpy.sa.Int(outDistanceRaster),
                         arcpy.sa.Con(
                             arcpy.sa.Raster(cfg.CORERAS) == int(targetCore),
                             1))
-                conRaster.save(TARGETRASTER)
 
                 # Execute ZonalStatistics to get more precise cw distance if
                 # arc rounded it earlier (not critical, hence the try/pass)
                 if (linkTable[link,cfg.LTB_CWDIST] ==
                                 int(linkTable[link,cfg.LTB_CWDIST])):
                     try:
-                        zonalRas = path.join(coreDir,'zonal')
-                        arcpy.sa.ZonalStatistics(TARGETRASTER, "VALUE",
+                        zonalRas = 'zonal'
+                        arcpy.sa.ZonalStatistics(targ_rast, "VALUE",
                             outDistanceRaster, zonalRas, "MINIMUM", "DATA")
                         minObject = arcpy.GetRasterProperties_management(zonalRas,
                                                                 "MINIMUM")
                         rasterMin = float(str(minObject.getOutput(0)))
                         linkTable[link,cfg.LTB_CWDIST] = rasterMin
-                        lu.delete_data(zonalRas)
                     except Exception:
                         pass
                 # Cost path maps the least cost path
                 # between source and target
-                lcpRas = path.join(coreDir, "lcp")
-                lu.delete_data(lcpRas)
-
                 # Note: costpath uses GDAL.
-                outCostPath = arcpy.sa.CostPath(
-                        TARGETRASTER, outDistanceRaster,
+                lcp_ras = arcpy.sa.CostPath(
+                        targ_rast, outDistanceRaster,
                         back_rast, "BEST_SINGLE", "")
-                outCostPath.save(lcpRas)
 
                 # FIXME: may be fastest to not do selection, do
                 # EXTRACTBYMASK,.getValuelist, use code snippet at end
@@ -527,7 +521,7 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                     # ------------------------------------------
                     # Intermediate core test
                     coreDetected = test_for_intermediate_core(
-                            coreDir, lcpRas, core_pair_ras)
+                        lcp_ras, arcpy.sa.Raster(core_pair_ras))
 
                     if coreDetected:
                         gprint(
@@ -546,10 +540,13 @@ def do_cwd_calcs(x, linkTable, coresToMap, lcpLoop, bound_resis,
                 # Create lcp shapefile.  lcploop just keeps track of
                 # whether this is first time function is called.
                 lcpLoop = create_lcp_shapefile(
-                    linkTable, sourceCore, targetCore, lcpRas, lcpLoop)
+                    linkTable, sourceCore, targetCore, lcp_ras, lcpLoop)
+                lu.delete_data(lcp_ras)
 
-        lu.delete_dir(coreDir)
-        lu.delete_data(fcores)
+        lu.delete_data(fcores, core_pair_ras)
+        lu.del_keep_inter_data(back_rast)
+        arcpy.env.workspace = s3_wksp
+        lu.del_keep_inter_dir(coreDir)
         return linkTable, lcpLoop
 
     # Return GEOPROCESSING specific errors
@@ -570,8 +567,7 @@ def create_bounding_feature(src_core, targ_cores, bnd_resistance):
     connecting each core area to.
     """
     # FIXME: move outside of loop   # new circle
-    arcpy.MakeFeatureLayer_management(
-        path.join(cfg.SCRATCHDIR, BNDCIRS), "fGlobalBoundingFeat")
+    arcpy.MakeFeatureLayer_management(BNDCIRS, "fGlobalBoundingFeat")
 
     # loop through targets and get bounding circles that
     # contain focal core and target cores
@@ -601,27 +597,24 @@ def create_bounding_feature(src_core, targ_cores, bnd_resistance):
     # Clip out bounded area of resistance raster for cwd
     # calculations from focal core
     bounding_feat = arcpy.sa.ExtractByMask(bnd_resistance, BNDFC)
+    lu.del_keep_inter_data(BNDFC)
     return bounding_feat
 
 
-def test_for_intermediate_core(workspace,lcpRas,corePairRas):
+def test_for_intermediate_core(lcp_ras, corePairRas):
     """ Test if there is an intermediate core by seeing if least-cost
         path and remaining cores intersect
 
     """
     try:
-        arcpy.env.workspace = workspace
-        if arcpy.Exists("addRas"): #Can't use tif for getrasterproperties
-            arcpy.Delete_management("addRas")
-        outRas = arcpy.sa.Raster(lcpRas) + arcpy.sa.Raster(corePairRas)
-        outRas.save("addRas")
-
+        add_ras = lcp_ras + corePairRas
         # Test to see if raster has data
-        if (arcpy.GetRasterProperties_management("addRas", "ALLNODATA")
+        if (arcpy.GetRasterProperties_management(add_ras, "ALLNODATA")
                 .getOutput(0) == "0"):
             return True  # Data present and therefore overlap
         else:
             return False  # Empty and therefore no overlap
+        lu.del_keep_inter_rast(add_ras, "addRas")
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -652,6 +645,7 @@ def create_lcp_shapefile(linktable, src_core, targ_core, lcp_ras, lcp_loop):
 
         lcpline_dslv = 'lcpline_dslv.shp'
         arcpy.Dissolve_management(lcpline, lcpline_dslv)
+        lu.delete_data(lcpline)
 
         arcpy.AddField_management(lcpline_dslv, "Link_ID", "LONG", "5")
         arcpy.CalculateField_management(lcpline_dslv, "Link_ID",
@@ -723,20 +717,10 @@ def create_lcp_shapefile(linktable, src_core, targ_core, lcp_ras, lcp_loop):
         lcp_loop = lcp_loop + 1
         lcp_shp = path.join(cfg.DATAPASSDIR, "lcpLines_s3.shp")
         if lcp_loop == 1:
-            if arcpy.Exists(lcp_shp):
-                try:
-                    arcpy.Delete(lcp_shp)
-
-                except Exception:
-                    lu.dashline(1)
-                    msg = ('ERROR: Could not remove LCP shapefile ' +
-                           lcp_shp + '. Was it open in ArcMap?\n You may '
-                           'need to re-start ArcMap to release the file lock.')
-                    lu.raise_error(msg)
-
             arcpy.Copy_management(lcpline_dslv, lcp_shp)
         else:
             arcpy.Append_management(lcpline_dslv, lcp_shp, "TEST")
+        lu.delete_data(lcpline_dslv)
 
         return lcp_loop
 

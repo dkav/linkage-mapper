@@ -34,6 +34,8 @@ except Exception:
 
 _SCRIPT_NAME = "lm_util.py"
 
+KEEP_INTER_DATA = False
+
 
 def cwd_cutoff_str(cutoff):
     """Convert CDW cutoff to text and abbreviate if possible."""
@@ -500,10 +502,10 @@ def get_sel_ext_box_coords(feature, field_name, field_val):
     return get_box_data(field_val, extent)
 
 
-def create_bnd_circle(box_fc, buff_dist):
+def create_bnd_circle(box_fc, buff_dist, out_dir):
     """Create bounding circles."""
-    bnd_cir_cent = 'bnd_cir_cent.shp'
-    bnd_cir = 'bnd_circle.shp'
+    bnd_cir_cent = os.path.join(out_dir, 'bnd_cir_cent.shp')
+    bnd_cir = os.path.join(out_dir, 'bnd_circle.shp')
 
     ext_box_lst = npy.zeros((0, 5), dtype='float32')
     box_coords = get_ext_box_coords(box_fc)
@@ -529,14 +531,12 @@ def get_ext_box_coords(feature):
 def make_points(pointArray, outFC):
     """Creates a shapefile with points specified by coordinates in pointArray
 
-       outFC is just the filename, not path.
        pointArray is x,y,corex,corey,radius
-
+       outFC is the path and name of the output feature class
     """
+    out_fc_dir, out_fc_name = os.path.split(outFC)
     try:
-        delete_data(outFC)
-        arcpy.CreateFeatureclass_management(
-            arcpy.env.workspace, outFC, "POINT")
+        arcpy.CreateFeatureclass_management(out_fc_dir, out_fc_name, "POINT")
         if pointArray.shape[1] > 3:
             arcpy.AddField_management(outFC, "corex", "LONG")
             arcpy.AddField_management(outFC, "corey", "LONG")
@@ -1146,7 +1146,7 @@ def write_link_maps(linkTableFile, step):
         arcpy.env.workspace = cfg.OUTPUTDIR
         linktable = load_link_table(linkTableFile)
 
-        coresForLinework = "cores_for_linework.shp"
+        coresForLinework = set_scratch_wksp('cores_for_linework.shp')
 
         # Preferred method to get geometric center
         pointArray = get_centroids(cfg.COREFC, cfg.COREFN)
@@ -1326,11 +1326,25 @@ def set_dataframe_sr():
         pass
 
 
+def set_scratch_wksp(sub_fld):
+    """Create and set scratch workspace sub folder."""
+    wrk_sp = os.path.join(cfg.SCRATCHDIR, sub_fld)
+    create_dir(wrk_sp)
+    #arcpy.env.workspace = wrk_sp
+    return wrk_sp
+
+
 def create_dir(lmfolder):
     """Creates folder if it doesn't exist."""
     if not os.path.exists(lmfolder):
-        arcpy.CreateFolder_management(os.path.dirname(lmfolder),
-                                       os.path.basename(lmfolder))
+        try:
+            os.makedirs(lmfolder)
+        except OSError as err:
+            print("OS was unable to create {}".format(filename))
+            print(err)
+            write_log("OS was unable to create {}".format(filename))
+            write_log(err)
+            exit_with_python_error(_SCRIPT_NAME)
 
 
 def delete_file(filename):
@@ -1339,6 +1353,8 @@ def delete_file(filename):
         try:
             os.remove(filename)
         except OSError as err:
+            print("OS was unable to delete {}".format(filename))
+            print(err)
             write_log("OS was unable to delete {}".format(filename))
             write_log(err)
 
@@ -1349,6 +1365,8 @@ def delete_dir(dir_path):
         try:
             shutil.rmtree(dir_path)
         except OSError as err:
+            print("OS was unable to delete {} directory".format(dir_path))
+            print(err)
             write_log("OS was unable to delete {} directory".format(dir_path))
             write_log(err)
 
@@ -1359,6 +1377,8 @@ def delete_data(*in_data):
         try:
             arcpy.Delete_management(item)
         except arcpy.ExecuteError:
+            print("Arcpy was unable to delete {}".format(item))
+            print(arcpy.GetMessages(2))
             write_log("Arcpy was unable to delete {}".format(item))
             write_log(arcpy.GetMessages(2))
 
@@ -1371,6 +1391,27 @@ def clean_out_workspace(ws):
         delete_data(*arcpy.ListRasters())
         delete_data(*arcpy.ListFeatureClasses())
         arcpy.env.workspace = cur_ws
+
+
+def del_keep_inter_dir(inter_dir):
+    """Delete or keep intermediate dir depending on KEEP_INTER_DATA."""
+    if not KEEP_INTER_DATA:
+        delete_dir(inter_dir)
+
+
+def del_keep_inter_data(*args):
+    """Delete or keep intermediate data depending on KEEP_INTER_DATA."""
+    if not KEEP_INTER_DATA:
+        delete_data(*args)
+
+
+def del_keep_inter_rast(raster_obj, rast_fname):
+    """Delete or keep intermediate raster depending on KEEP_INTER_DATA."""
+    if KEEP_INTER_DATA:
+        raster_obj.save(rast_fname)
+    else:
+        delete_data(raster_obj)
+        del raster_obj
 
 
 def make_raster_paths(no_rast, base_dir, sub_dir):

@@ -33,6 +33,7 @@ def STEP2_build_network():
     try:
         lu.dashline(1)
         gprint('Running script ' + _SCRIPT_NAME)
+        wrk_sp = lu.set_scratch_wksp("step2")
         outlinkTableFile = lu.get_this_step_link_table(step=2)
 
         # adjacency file created from lm_s1_adj.py
@@ -237,6 +238,8 @@ def STEP2_build_network():
                 lu.write_link_maps(outlinkTableFile, step=2)
             gprint('Linework shapefiles written.')
 
+        lu.del_keep_inter_dir(wrk_sp)
+
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
         lu.dashline(1)
@@ -286,7 +289,6 @@ def generate_distance_file():
     """
     try:
         arcpy.env.cellSize = arcpy.Raster(cfg.RESRAST).meanCellHeight
-        arcpy.env.workspace = cfg.SCRATCHDIR
 
         fs2corefc = "fscores"
         fs2corefc2 = "fscores2"
@@ -294,14 +296,16 @@ def generate_distance_file():
         if (cfg.SIMPLIFY_CORES and
                 arcpy.Describe(cfg.COREFC).shapeType == "Polygon"):
             gprint('Simplifying polygons for core pair distance calculations')
-            s2corefc = path.join(cfg.SCRATCHDIR, "CoreFC_Simp.shp")
+            s2corefc = path.join("CoreFC_Simp.shp")
             tolerance = float(arcpy.env.cellSize) / 3
             arcpy.cartography.SimplifyPolygon(
                 in_features=cfg.COREFC, out_feature_class=s2corefc,
                 algorithm="POINT_REMOVE", tolerance=tolerance,
                 collapsed_point_option="NO_KEEP")
+            s2corefc_simp = True
         else:
             s2corefc = cfg.COREFC
+            s2corefc_simp = False
 
         arcpy.MakeFeatureLayer_management(s2corefc, fs2corefc)
         arcpy.MakeFeatureLayer_management(s2corefc, fs2corefc2)
@@ -311,7 +315,7 @@ def generate_distance_file():
 
         adj_list = get_full_adj_list()
         gprint('\nFinding distances between cores using Generate Near Table.')
-        near_tbl = path.join(cfg.SCRATCHDIR, "neartbl.dbf")
+        near_tbl = path.join("neartbl.dbf")
         gprint('There are ' + str(len(adj_list)) + ' adjacent core pairs to '
                'process.')
         pct_done = 0
@@ -352,9 +356,13 @@ def generate_distance_file():
                     del row
                     row = next(rows)
             del rows
+            lu.del_keep_inter_data(near_tbl)
             output.append(csvseparator.join(outputrow))
 
         lu.delete_data(fs2corefc, fs2corefc2)
+        if s2corefc_simp:
+            lu.del_keep_inter_data(s2corefc)
+
         lu.print_elapsed_time(start_time)
 
         #  In case coreFC is grouped in TOC, get coreFN for non-Arc statement
@@ -438,7 +446,8 @@ def get_full_adj_list():
 def connect_clusters(linkTable):
         # CUSTOM Fragment connecting code
     try:
-        clusterFC = path.join(cfg.SCRATCHDIR,"Cores_Grouped_dist"+str(int(cfg.MAXEUCDIST))+".shp")
+        clusterFC = path.join("Cores_Grouped_dist{max_euc_dist}.shp"
+                              .format(max_euc_dist=int(cfg.MAXEUCDIST)))
         arcpy.CopyFeatures_management(cfg.COREFC,clusterFC)
 
         gprint('Running custom fragment connecting code.')

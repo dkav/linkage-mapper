@@ -58,6 +58,7 @@ def STEP5_calc_lccs():
 
 
 def calc_lccs(normalize):
+    import pdb; pdb.set_trace()
     try:
         if normalize:
             mosaicBaseName = "_corridors"
@@ -75,8 +76,6 @@ def calc_lccs(normalize):
         lu.dashline(1)
         gprint('Running script ' + _SCRIPT_NAME)
         linkTableFile = lu.get_prev_step_link_table(step=5)
-        arcpy.env.workspace = cfg.SCRATCHDIR
-        arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         arcpy.env.compression = "NONE"
 
         if cfg.MAXEUCDIST is not None:
@@ -122,11 +121,9 @@ def calc_lccs(normalize):
         # set up directories for normalized lcc and mosaic grids
         dirCount = 0
         gprint("Creating output folder: " + cfg.LCCBASEDIR)
-        lu.delete_dir(cfg.LCCBASEDIR)
-        arcpy.CreateFolder_management(path.dirname(cfg.LCCBASEDIR),
-                                       path.basename(cfg.LCCBASEDIR))
-        arcpy.CreateFolder_management(cfg.LCCBASEDIR, cfg.LCCNLCDIR_NM)
         clccdir = path.join(cfg.LCCBASEDIR, cfg.LCCNLCDIR_NM)
+        lu.delete_dir(cfg.LCCBASEDIR)
+        lu.create_dir(clccdir)
         gprint("")
         if normalize:
             gprint('Normalized least-cost corridors will be written '
@@ -166,8 +163,6 @@ def calc_lccs(normalize):
                 lu.raise_error(
                     '\nError: cannot find cwd raster:\n' + cwdRaster2)
 
-            lccNormRaster = path.join(clccdir, str(corex) + "_" +
-                                      str(corey))# + ".tif")
             arcpy.env.extent = "MINOF"
 
             link = lu.get_links_from_core_pairs(linkTable, corex, corey)
@@ -179,11 +174,11 @@ def calc_lccs(normalize):
             lcDist = (float(linkTable[link,cfg.LTB_CWDIST]) - offset)
 
             if normalize:
-                outras = (arcpy.sa.Raster(cwdRaster1) +
+                lcc_norm_ras = (arcpy.sa.Raster(cwdRaster1) +
                           arcpy.sa.Raster(cwdRaster2) - lcDist)
 
                 try:
-                    minObject = arcpy.GetRasterProperties_management(outras, "MINIMUM")
+                    minObject = arcpy.GetRasterProperties_management(lcc_norm_ras, "MINIMUM")
                     rasterMin = float(str(minObject.getOutput(0)))
                 except Exception:
                     lu.warn('\n------------------------------------------------')
@@ -202,9 +197,8 @@ def calc_lccs(normalize):
                            'resistance map. \n')
                     lu.warn(msg)
             else:
-                outRas = (
+                lcc_norm_ras = (
                     arcpy.sa.Raster(cwdRaster1) + arcpy.sa.Raster(cwdRaster2))
-            outras.save(lccNormRaster)
 
             arcpy.env.extent = cfg.RESRAST
 
@@ -215,11 +209,11 @@ def calc_lccs(normalize):
 
             if numGridsWritten == 0 and dirCount == 0:
                 # If this is the first grid then copy rather than mosaic
-                arcpy.CopyRaster_management(lccNormRaster, mosaicRaster)
+                arcpy.CopyRaster_management(lcc_norm_ras, mosaicRaster)
             else:
                 lu.write_log('Executing mosaic for link #'+str(linkId))
                 arcpy.MosaicToNewRaster_management(
-                    input_rasters=";".join([lccNormRaster,
+                    input_rasters=";".join([lcc_norm_ras,
                                             lastMosaicRaster]),
                     output_location=mosaicDir,
                     raster_dataset_name_with_extension=mosFN,
@@ -250,10 +244,11 @@ def calc_lccs(normalize):
 
             numGridsWritten = numGridsWritten + 1
             if not SAVENORMLCCS:
-                lu.delete_data(lccNormRaster)
-                lu.delete_dir(clccdir)
-                lu.create_dir(clccdir)
+                lu.delete_data(lcc_norm_ras)
             else:
+                lcc_norm_rfile = path.join(clccdir, str(corex) + "_" +
+                                           str(corey))
+                lcc_norm_ras.save(lcc_norm_rfile)
                 if numGridsWritten == 100:
                     # We only write up to 100 grids to any one folder
                     # because otherwise Arc slows to a crawl
@@ -262,8 +257,7 @@ def calc_lccs(normalize):
                     clccdir = path.join(cfg.LCCBASEDIR,
                                         cfg.LCCNLCDIR_NM + str(dirCount))
                     gprint("Creating output folder: " + clccdir)
-                    arcpy.CreateFolder_management(cfg.LCCBASEDIR,
-                                               path.basename(clccdir))
+                    lu.create_dir(clccdir)
 
             if numGridsWritten > 1 or dirCount > 0:
                 lu.delete_data(lastMosaicRaster)

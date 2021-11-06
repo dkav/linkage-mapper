@@ -434,6 +434,7 @@ def set_up_arc_env(config):
         raise RuntimeError("Spatial Analyst license is unavailable")
     arcpy.ResetEnvironments()
     arcpy.env.overwriteOutput = True
+    arcpy.env.scratchWorkspace = config.ARCSCRATCHDIR
 
 
 class Configure(object):

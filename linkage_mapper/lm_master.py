@@ -108,7 +108,6 @@ def run_lm():
         # Make a local grid copy of resistance raster for cwd runs-
         # will run faster than gdb.
         # Don't know if raster is in a gdb if entered from TOC
-        lu.delete_data(cfg.RESRAST)
         gprint('\nMaking temporary copy of resistance raster for this run.')
         arcpy.env.outputCoordinateSystem = arcpy.Describe(cfg.COREFC).SpatialReference
         arcpy.env.extent = arcpy.Describe(cfg.RESRAST_IN).Extent
@@ -124,7 +123,6 @@ def run_lm():
         if (cfg.STEP1) or (cfg.STEP3):
             # Make core raster file
             gprint('\nMaking temporary raster of core file for this run.')
-            lu.delete_data(cfg.CORERAS)
             arcpy.FeatureToRaster_conversion(cfg.COREFC, cfg.COREFN,
                           cfg.CORERAS, arcpy.Describe(cfg.RESRAST).MeanCellHeight)
 
@@ -147,6 +145,7 @@ def run_lm():
         delete_final_gdb(cfg.LINKMAPGDB)
 
         # Run linkage mapper processing steps
+        import pdb; pdb.set_trace()
         if cfg.STEP1:
             s1.STEP1_get_adjacencies()
         if cfg.STEP2:
@@ -163,6 +162,9 @@ def run_lm():
             gprint(cfg.OUTPUTDIR)
 
         # Clean up
+        import pdb; pdb.set_trace()
+        lu.delete_data(cfg.RESRAST)
+        #lu.clean_out_workspace(cfg.SCRATCHDIR)
         lu.delete_dir(cfg.SCRATCHDIR)
 
         arcpy.AddMessage('\nDone with linkage mapping.\n')
