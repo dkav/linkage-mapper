@@ -91,8 +91,6 @@ def cwadjacency(bnd_cir=None):
 
 
         gprint('\nCalculating cost-weighted distance adjacency')
-        outcsvfile = cfg.CWDADJFILE
-        outcsvLogfile = path.join(cfg.LOGDIR, "cwdAdj_STEP1.csv")
         PREFIX = cfg.PREFIX
 
         # May need to set extent prior to core poly to raster conversion...
@@ -142,7 +140,7 @@ def cwadjacency(bnd_cir=None):
         arcpy.env.scratchWorkspace = cfg.ARCSCRATCHDIR
         gprint('Cost-weighted distance allocation done.')
         lu.print_elapsed_time(start_time)
-        adjshiftwrite(alloc_ras, outcsvfile, outcsvLogfile)
+        adjshiftwrite(alloc_ras, cfg.CWDADJFILE)
 
     # Return GEOPROCESSING specific errors
     except arcpy.ExecuteError:
@@ -163,8 +161,6 @@ def euadjacency(bnd_cir=None):
         ALLOC_RASFN = "Euc_alloc_ras"
         lu.dashline()
         gprint('Calculating Euclidean adjacency')
-        outcsvfile = cfg.EUCADJFILE
-        outcsvLogfile = path.join(cfg.LOGDIR, "eucAdj_STEP1.csv")
 
         # ----------------------------------------------
         # Euclidean allocation code
@@ -192,7 +188,7 @@ def euadjacency(bnd_cir=None):
         gprint('\nEuclidean distance allocation done.')
         lu.print_elapsed_time(start_time)
         arcpy.env.extent = oldextent
-        adjshiftwrite(alloc_ras, outcsvfile, outcsvLogfile)
+        adjshiftwrite(alloc_ras, cfg.EUCADJFILE)
 
         # Clean up
         lu.delete_data(outDistanceRaster)
@@ -212,12 +208,14 @@ def euadjacency(bnd_cir=None):
         lu.exit_with_python_error(_SCRIPT_NAME)
 
 
-def adjshiftwrite(araster, csvfile, logfile):
+def adjshiftwrite(araster, csv_file):
     """Get adjacencies using shift method and write to disk"""
     # To be replaced by getLeastCostDistsUsingShiftMethod if implemented
     adjTable = get_adj_using_shift_method(araster)
-    lu.write_adj_file(csvfile, adjTable)
-    lu.write_adj_file(logfile, adjTable)
+    lu.write_adj_file(csv_file, adjTable)
+    log_file = path.join(cfg.LOGDIR,
+        path.splitext(path.basename(csv_file))[0] + '_step1.csv')
+    shutil.copyfile(csv_file, log_file)
 
 
 def get_adj_using_shift_method(alloc):
