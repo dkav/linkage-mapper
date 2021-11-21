@@ -25,14 +25,6 @@ Connectivity Working Group for feedback on these tools as they were
 being developed. John Gallo and Randal Greene made minor changes such as
 terminology and screengrab updates for the v2.0 Release.
 
-**Software Requirements and Licensing**
-
-Linkage Mapper requires **ArcGIS Desktop** (10.3 or greater) or **ArcGIS
-Pro**, with the **ArcGIS Spatial Analyst** extension. If you are using
-ArcGIS Desktop and do not have an Advanced license, you will also need
-to install the Conefor Inputs tool (see below). Linkage Mapper is
-provided free of charge and is licensed under a GNU General Public
-License.
 
 **Preferred Citation**
 
@@ -895,16 +887,6 @@ consider the following:
 -  ModelBuilder models that call LM will need to be edited, re-validated
    and saved.
 
-Community 
-=========
-
-Please join the Linkage Mapper Google Groups forum at
-https://groups.google.com/g/linkage-mapper to get updates, report bugs,
-and suggest enhancements. Please also visit the project website at
-https://circuitscape.org/linkagemapper/.
-
-To contribute to the development of Linkage Mapper explore our code
-repository on GitHub: https://github.com/linkagescape/linkage-mapper.
 
 Literature Cited
 ================

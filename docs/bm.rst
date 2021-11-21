@@ -304,17 +304,6 @@ the maximum and sum methods here than in Fig. 4 because there are more
 areas where multiple corridors could be improved through restoration of
 a single area.
 
-Community
-=========
-
-Please join the Linkage Mapper Google Groups forum at
-https://groups.google.com/g/linkage-mapper to get updates, report bugs,
-and suggest enhancements. Please also visit the project website at
-https://circuitscape.org/linkagemapper/.
-
-To contribute to the development of Linkage Mapper explore our code
-repository on GitHub: https://github.com/linkagescape/linkage-mapper.
-
 Literature cited
 ================
 
