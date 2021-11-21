@@ -19,47 +19,45 @@ Kavanagh\ :sup:`3`
 
 **Table of Contents**
 
-`1 Introduction 2 <#introduction>`__
+`1 Introduction <#introduction>`__
 
-`2 Coding Conventions 2 <#coding-conventions>`__
+`2 Coding Conventions <#coding-conventions>`__
 
-`3 LP Code Organization 2 <#lp-code-organization>`__
+`3 LP Code Organization <#lp-code-organization>`__
 
-`3.1 lp_settings.py 2 <#lp_settings.py>`__
+`3.1 lp_settings.py <#lp_settings.py>`__
 
-`3.2 lp_main.py 3 <#lp_main.py>`__
+`3.2 lp_main.py <#lp_main.py>`__
 
-`3.3 Summary Diagram of all the modules
-3 <#summary-diagram-of-all-the-modules>`__
+`3.3 Summary Diagram of all the modules <#summary-diagram-of-all-the-modules>`__
 
-`3.4 Linkage Mapper.tbx 3 <#linkage-mapper.tbx>`__
+`3.4 Linkage Mapper.tbx <#linkage-mapper.tbx>`__
 
-`3.5 LpDlgContent.xsl 3 <#lpdlgcontent.xsl>`__
+`3.5 LpDlgContent.xsl <#lpdlgcontent.xsl>`__
 
-`4 Geoprocessing Summary 5 <#geoprocessing-summary>`__
+`4 Geoprocessing Summary <#geoprocessing-summary>`__
 
-`5 LP Functions 7 <#lp-functions>`__
+`5 LP Functions <#lp-functions>`__
 
-`5.1 lp_main.py 7 <#lp_main.py-1>`__
+`5.1 lp_main.py <#lp_main.py-1>`__
 
-`6 LM Architecture 10 <#lm-architecture>`__
+`6 LM Architecture <#lm-architecture>`__
 
 `6.1 Configuration and Settings 10 <#configuration-and-settings>`__
 
-`6.2 Logging 10 <#logging>`__
+`6.2 Logging <#logging>`__
 
-`6.3 Other Utilities 10 <#other-utilities>`__
+`6.3 Other Utilities <#other-utilities>`__
 
-`7 Other Notes 11 <#other-notes>`__
+`7 Other Notes <#other-notes>`__
 
-`7.1 Source Control Using GitHub 11 <#source-control-using-github>`__
+`7.1 Source Control Using GitHub <#source-control-using-github>`__
 
-`7.2 Debugging 11 <#debugging>`__
+`7.2 Debugging <#debugging>`__
 
-`7.3 Becoming a Linkage Mapper Contributor
-11 <#becoming-a-linkage-mapper-contributor>`__
+`7.3 Becoming a Linkage Mapper Contributor <#becoming-a-linkage-mapper-contributor>`__
 
-`7.4 Future Enhancements 11 <#future-enhancements>`__
+`7.4 Future Enhancements <#future-enhancements>`__
 
 Introduction
 ============

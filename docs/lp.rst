@@ -27,79 +27,67 @@ https://doi.org/10.6084/m9.figshare.5673715
 
 **Table of Contents**
 
-`1 Introduction 4 <#introduction>`__
+`1 Introduction <#introduction>`__
 
-`1.1 Tool Overview 4 <#tool-overview>`__
+`1.1 Tool Overview <#tool-overview>`__
 
-`1.2 Climate-wise Considerations (optional to run)
-5 <#climate-wise-considerations-optional-to-run>`__
+`1.2 Climate-wise Considerations (optional to run) <#climate-wise-considerations-optional-to-run>`__
 
-`1.3 Example Applications 5 <#example-applications>`__
+`1.3 Example Applications <#example-applications>`__
 
-`2 Acknowledgements 5 <#acknowledgements>`__
+`2 Acknowledgements <#acknowledgements>`__
 
-`3 Installation 6 <#installation>`__
+`3 Installation <#installation>`__
 
-`4 Using Linkage Priority 6 <#using-linkage-priority>`__
+`4 Using Linkage Priority <#using-linkage-priority>`__
 
-`4.1 Required Inputs 6 <#required-inputs>`__
+`4.1 Required Inputs <#required-inputs>`__
 
-`4.2 Core Area Value (CAV) Options 7 <#core-area-value-cav-options>`__
+`4.2 Core Area Value (CAV) Options <#core-area-value-cav-options>`__
 
-`4.3 Corridor Specific Priority (CSP) Options
-7 <#corridor-specific-priority-csp-options>`__
+`4.3 Corridor Specific Priority (CSP) Options <#corridor-specific-priority-csp-options>`__
 
-`4.4 Blended Priority Options 10 <#blended-priority-options>`__
+`4.4 Blended Priority Options <#blended-priority-options>`__
 
-`4.5 Additional Options 10 <#additional-options>`__
+`4.5 Additional Options <#additional-options>`__
 
-`4.6 Advanced Settings in lp_settings.py
-10 <#advanced-settings-in-lp_settings.py>`__
+`4.6 Advanced Settings in lp_settings.py <#advanced-settings-in-lp_settings.py>`__
 
-`5 Other Usage Notes 11 <#other-usage-notes>`__
+`5 Other Usage Notes <#other-usage-notes>`__
 
-`5.1 Upgrading 11 <#upgrading>`__
+`5.1 Upgrading <#upgrading>`__
 
-`5.2 Enhancing Analyses Using Optional Settings
-11 <#enhancing-analyses-using-optional-settings>`__
+`5.2 Enhancing Analyses Using Optional Settings <#enhancing-analyses-using-optional-settings>`__
 
-`5.3 Other Suggestions and Troubleshooting
-11 <#other-suggestions-and-troubleshooting>`__
+`5.3 Other Suggestions and Troubleshooting <#other-suggestions-and-troubleshooting>`__
 
-`5.4 Other Applications 12 <#other-applications>`__
+`5.4 Other Applications <#other-applications>`__
 
-`6 Community 12 <#community>`__
+`6 Community <#community>`__
 
-`7 Key Acronyms 12 <#key-acronyms>`__
+`7 Key Acronyms <#key-acronyms>`__
 
-`8 Select References 13 <#select-references>`__
+`8 Select References <#select-references>`__
 
-`9 Linkage Priority Tutorial 14 <#linkage-priority-tutorial>`__
+`9 Linkage Priority Tutorial <#linkage-priority-tutorial>`__
 
-`9.1 Run Linkage Pathways, then Linkage Priority Tool with Defaults
-14 <#run-linkage-pathways-then-linkage-priority-tool-with-defaults>`__
+`9.1 Run Linkage Pathways, then Linkage Priority Tool with Defaults <#run-linkage-pathways-then-linkage-priority-tool-with-defaults>`__
 
-`9.2 Add Other Core Area Value (e.g. Climate Refugia)
-18 <#add-other-core-area-value-e.g.-climate-refugia>`__
+`9.2 Add Other Core Area Value (e.g. Climate Refugia) <#add-other-core-area-value-e.g.-climate-refugia>`__
 
-`9.3 Using Climate Signature to Prioritize Climate Analogs
-20 <#using-climate-signature-to-prioritize-climate-analogs>`__
+`9.3 Using Climate Signature to Prioritize Climate Analogs <#using-climate-signature-to-prioritize-climate-analogs>`__
 
-`9.4 Combine the above sections into a single model run.
-23 <#combine-the-above-sections-into-a-single-model-run.>`__
+`9.4 Combine the above sections into a single model run. <#combine-the-above-sections-into-a-single-model-run.>`__
 
-`10 Advanced Linkage Priority Tutorial
-24 <#advanced-linkage-priority-tutorial>`__
+`10 Advanced Linkage Priority Tutorial <#advanced-linkage-priority-tutorial>`__
 
-`10.1 Shortcut for Multiple Runs 24 <#shortcut-for-multiple-runs>`__
+`10.1 Shortcut for Multiple Runs <#shortcut-for-multiple-runs>`__
 
-`10.2 Add Centrality 25 <#add-centrality>`__
+`10.2 Add Centrality <#add-centrality>`__
 
-`10.3 Inspect Core Area Value Component Calculations
-27 <#inspect-core-area-value-component-calculations>`__
+`10.3 Inspect Core Area Value Component Calculations <#inspect-core-area-value-component-calculations>`__
 
-`10.4 Export Corridor Importance Value
-27 <#export-corridor-importance-value>`__
+`10.4 Export Corridor Importance Value <#export-corridor-importance-value>`__
 
 Introduction
 ============

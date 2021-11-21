@@ -47,31 +47,29 @@ Available at: https://circuitscape.org/linkagemapper/.
 
 **Table of Contents**
 
-`1 Introduction 3 <#introduction>`__
+`1 Introduction <#introduction>`__
 
-`2 Installation 3 <#installation>`__
+`2 Installation <#installation>`__
 
-`3 Using Climate Linkage Mapper 3 <#using-climate-linkage-mapper>`__
+`3 Using Climate Linkage Mapper <#using-climate-linkage-mapper>`__
 
-`3.1 Input data requirements 3 <#input-data-requirements>`__
+`3.1 Input data requirements <#input-data-requirements>`__
 
-`3.2 Running from a Python Script 5 <#running-from-a-python-script>`__
+`3.2 Running from a Python Script <#running-from-a-python-script>`__
 
-`3.3 Processing Steps 6 <#processing-steps>`__
+`3.3 Processing Steps <#processing-steps>`__
 
-`4 Climate Linkage Mapper DEMO 7 <#climate-linkage-mapper-demo>`__
+`4 Climate Linkage Mapper DEMO <#climate-linkage-mapper-demo>`__
 
-`5 Extra hints 7 <#extra-hints>`__
+`5 Extra hints <#extra-hints>`__
 
-`5.1 Background processing on ArcGIS Desktop
-7 <#background-processing-on-arcgis-desktop>`__
+`5.1 Background processing on ArcGIS Desktop <#background-processing-on-arcgis-desktop>`__
 
-`5.2 Changing linkage rules without re-starting from scratch
-7 <#changing-linkage-rules-without-re-starting-from-scratch>`__
+`5.2 Changing linkage rules without re-starting from scratch <#changing-linkage-rules-without-re-starting-from-scratch>`__
 
-`6 Community 8 <#community>`__
+`6 Community <#community>`__
 
-`7 Literature cited 8 <#literature-cited>`__
+`7 Literature cited <#literature-cited>`__
 
 Introduction
 ============

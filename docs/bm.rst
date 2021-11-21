@@ -33,23 +33,23 @@ https://circuitscape.org/linkagemapper/.
 
 **Table of Contents**
 
-`1 Introduction 2 <#introduction>`__
+`1 Introduction <#introduction>`__
 
-`2 Installation 2 <#installation>`__
+`2 Installation <#installation>`__
 
-`3 Using Barrier Mapper 2 <#using-barrier-mapper>`__
+`3 Using Barrier Mapper <#using-barrier-mapper>`__
 
-`3.1 Input data requirements 2 <#input-data-requirements>`__
+`3.1 Input data requirements <#input-data-requirements>`__
 
-`3.2 Running the toolbox 2 <#running-the-toolbox>`__
+`3.2 Running the toolbox <#running-the-toolbox>`__
 
-`3.3 What Barrier Mapper does 4 <#what-barrier-mapper-does>`__
+`3.3 What Barrier Mapper does <#what-barrier-mapper-does>`__
 
-`4 Barrier Mapper tutorial 5 <#barrier-mapper-tutorial>`__
+`4 Barrier Mapper tutorial <#barrier-mapper-tutorial>`__
 
-`5 Community 8 <#community>`__
+`5 Community <#community>`__
 
-`6 Literature cited 8 <#literature-cited>`__
+`6 Literature cited <#literature-cited>`__
 
 Introduction
 ============

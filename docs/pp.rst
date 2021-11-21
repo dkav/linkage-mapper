@@ -35,23 +35,23 @@ https://circuitscape.org/linkagemapper.
 
 **Table of Contents**
 
-`1 Introduction 2 <#introduction>`__
+`1 Introduction <#introduction>`__
 
-`2 Installation 2 <#installation>`__
+`2 Installation <#installation>`__
 
-`3 Using Pinchpoint Mapper 3 <#using-pinchpoint-mapper>`__
+`3 Using Pinchpoint Mapper <#using-pinchpoint-mapper>`__
 
-`3.1 Input data requirements 3 <#input-data-requirements>`__
+`3.1 Input data requirements <#input-data-requirements>`__
 
-`3.2 Running the toolbox 3 <#running-the-toolbox>`__
+`3.2 Running the toolbox <#running-the-toolbox>`__
 
-`3.3 What Pinchpoint Mapper does 4 <#what-pinchpoint-mapper-does>`__
+`3.3 What Pinchpoint Mapper does <#what-pinchpoint-mapper-does>`__
 
-`4 Pinchpoint Mapper tutorial 5 <#pinchpoint-mapper-tutorial>`__
+`4 Pinchpoint Mapper tutorial <#pinchpoint-mapper-tutorial>`__
 
-`5 Community 7 <#community>`__
+`5 Community <#community>`__
 
-`6 Literature cited 7 <#literature-cited>`__
+`6 Literature cited <#literature-cited>`__
 
 Introduction
 ============

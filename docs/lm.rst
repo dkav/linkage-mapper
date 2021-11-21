@@ -44,81 +44,66 @@ https://circuitscape.org/linkagemapper.
 
 **Table of Contents**
 
-`1. Introduction 3 <#introduction>`__
+`1. Introduction <#introduction>`__
 
-`1.1 Background 3 <#background>`__
+`1.1 Background <#background>`__
 
 `1.2 Before you begin– a note about connectivity modeling and software
-limitations
-3 <#before-you-begin-a-note-about-connectivity-modeling-and-software-limitations>`__
+limitations <#before-you-begin-a-note-about-connectivity-modeling-and-software-limitations>`__
 
-`2 Installation 4 <#installation>`__
+`2 Installation <#installation>`__
 
-`3 Using Linkage Pathways 5 <#using-linkage-pathways>`__
+`3 Using Linkage Pathways <#using-linkage-pathways>`__
 
-`3.1 Input data requirements 5 <#input-data-requirements>`__
+`3.1 Input data requirements <#input-data-requirements>`__
 
-`3.2 Prepping your data and work spaces
-5 <#prepping-your-data-and-work-spaces>`__
+`3.2 Prepping your data and work spaces <#prepping-your-data-and-work-spaces>`__
 
-`3.3 Running the toolbox 7 <#running-the-toolbox>`__
+`3.3 Running the toolbox <#running-the-toolbox>`__
 
-`4 What the Steps Do 10 <#what-the-steps-do>`__
+`4 What the Steps Do <#what-the-steps-do>`__
 
-`Step 1: Identify adjacent (neighboring) core areas
-11 <#step-1-identify-adjacent-neighboring-core-areas>`__
+`Step 1: Identify adjacent (neighboring) core areas <#step-1-identify-adjacent-neighboring-core-areas>`__
 
 `Step 2: Construct a network of core areas using adjacency and distance
-data
-11 <#step-2-construct-a-network-of-core-areas-using-adjacency-and-distance-data>`__
+data <#step-2-construct-a-network-of-core-areas-using-adjacency-and-distance-data>`__
 
-`Step 3: Calculate cost-weighted distances and least-cost paths
-12 <#step-3-calculate-cost-weighted-distances-and-least-cost-paths>`__
+`Step 3: Calculate cost-weighted distances and least-cost paths <#step-3-calculate-cost-weighted-distances-and-least-cost-paths>`__
 
-`Step 4: Implement optional rules specifying which core area to connect
-14 <#step-4-implement-optional-rules-specifying-which-core-area-to-connect>`__
+`Step 4: Implement optional rules specifying which core area to connect <#step-4-implement-optional-rules-specifying-which-core-area-to-connect>`__
 
 `Step 5: Calculate least-cost corridors and mosaic them into a single
-map
-14 <#step-5-calculate-least-cost-corridors-and-mosaic-them-into-a-single-map>`__
+map <#step-5-calculate-least-cost-corridors-and-mosaic-them-into-a-single-map>`__
 
-`5 Other features, extra hints, and troubleshooting
-16 <#other-features-extra-hints-and-troubleshooting>`__
+`5 Other features, extra hints, and troubleshooting <#other-features-extra-hints-and-troubleshooting>`__
 
-`5.1 Saving and re-loading run settings
-16 <#saving-and-re-loading-run-settings>`__
+`5.1 Saving and re-loading run settings <#saving-and-re-loading-run-settings>`__
 
-`5.2 Scaling your resistance values
-16 <#scaling-your-resistance-values>`__
+`5.2 Scaling your resistance values <#scaling-your-resistance-values>`__
 
 `5.3 Applying Linkage Pathways to large study areas, large core areas,
-or large numbers of core areas
-16 <#applying-linkage-pathways-to-large-study-areas-large-core-areas-or-large-numbers-of-core-areas>`__
+or large numbers of core areas <#applying-linkage-pathways-to-large-study-areas-large-core-areas-or-large-numbers-of-core-areas>`__
 
-`5.4 Manually removing or retaining links
-16 <#manually-removing-or-retaining-links>`__
+`5.4 Manually removing or retaining links <#manually-removing-or-retaining-links>`__
 
-`5.5 Freeing up disk space 16 <#freeing-up-disk-space>`__
+`5.5 Freeing up disk space <#freeing-up-disk-space>`__
 
 `5.6 Combining Linkage Pathways and Circuitscape to prioritize
-connectivity conservation
-17 <#combining-linkage-pathways-and-circuitscape-to-prioritize-connectivity-conservation>`__
+connectivity conservation <#combining-linkage-pathways-and-circuitscape-to-prioritize-connectivity-conservation>`__
 
-`5.7 Common problems 17 <#common-problems>`__
+`5.7 Common problems <#common-problems>`__
 
-`5.8 Recovering if ArcGIS applications crash in Step 3
-17 <#recovering-if-arcgis-applications-crash-in-step-3>`__
+`5.8 Recovering if ArcGIS applications crash in Step 3 <#recovering-if-arcgis-applications-crash-in-step-3>`__
 
-`5.9 Helpful utilities and accessing additional options
-18 <#helpful-utilities-and-accessing-additional-options>`__
+`5.9 Helpful utilities and accessing additional options <#helpful-utilities-and-accessing-additional-options>`__
 
-`5.10 Upgrading 18 <#upgrading>`__
+`5.10 Upgrading <#upgrading>`__
 
-`6 Community 18 <#community>`__
+`6 Community <#community>`__
 
-`7 Literature Cited 18 <#literature-cited>`__
+`7 Literature Cited <#literature-cited>`__
 
-`8 Linkage Pathways Tutorial 19 <#linkage-pathways-tutorial>`__
+`8 Linkage Pathways Tutorial <#linkage-pathways-tutorial>`__
 
 Introduction
 ============
