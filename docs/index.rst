@@ -4,7 +4,8 @@
    contain the root `toctree` directive.
 
 Welcome to Linkage Mapper's documentation!
-==================================
+==========================================
+**Software Requirements and Licensing**
 
 
 Linkage Mapper User Guides
