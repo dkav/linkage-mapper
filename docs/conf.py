@@ -17,9 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'lm-neo'
-copyright = '2021, Darren Kavanagh'
-author = 'Darren Kavanagh'
+project = 'Linkage Mapper'
+copyright = '2024, Linkagescape'
 
 
 # -- General configuration ---------------------------------------------------
