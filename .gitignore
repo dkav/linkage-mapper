@@ -9,3 +9,6 @@
 
 # LM build
 *.pdf
+
+# Docs
+/docs/_build
